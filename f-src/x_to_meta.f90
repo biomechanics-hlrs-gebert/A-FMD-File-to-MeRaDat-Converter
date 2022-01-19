@@ -82,11 +82,24 @@ CALL read_vtk_meta (filename, hdr, dims, origin, spcng, type_in)
 !------------------------------------------------------------------------------
 WRITE(std_out, FMT_TXT) 'Determining the output data types.'
 SELECT CASE(type_in)
-    CASE('rk4') ; type_out = 'ik4'
-    CASE('rk8') ; type_out = 'ik4'
-    CASE('ik4') ; type_out = 'ik4'
-    CASE('ik2') ; type_out = 'ik2'
-    CASE('uik2'); type_out = 'ik4'
+    CASE('rk4') 
+        type_out = 'ik4'
+        ALLOCATE(rry_rk4(dims(1), dims(2), dims(3)))
+        ALLOCATE(rry_ik4(dims(1), dims(2), dims(3)))
+    CASE('rk8') 
+        type_out = 'ik4'
+        ALLOCATE(rry_rk8(dims(1), dims(2), dims(3)))
+        ALLOCATE(rry_ik4(dims(1), dims(2), dims(3)))
+    CASE('ik4') 
+        type_out = 'ik4'
+        ALLOCATE(rry_ik4(dims(1), dims(2), dims(3)))
+    CASE('ik2') 
+        type_out = 'ik2'
+        ALLOCATE(rry_ik2(dims(1), dims(2), dims(3)))
+    CASE('uik2')
+        type_out = 'ik4'
+        ALLOCATE(rry_ik2(dims(1), dims(2), dims(3)))
+        ALLOCATE(rry_ik4(dims(1), dims(2), dims(3)))
 END SELECT
 
 !------------------------------------------------------------------------------
@@ -149,6 +162,7 @@ WRITE(std_out, FMT_TXT) 'Converting and writing binary information to *.raw file
 SELECT CASE(type_out)
     CASE('ik2') 
         CALL ser_write_raw(fh_vtk, TRIM(out%p_n_bsnm)//raw_suf, rry_ik2)
+        DEALLOCATE(rry_ik2)
     CASE('ik4') 
         SELECT CASE(type_in)
             CASE('rk4') 
@@ -158,6 +172,7 @@ SELECT CASE(type_out)
         END SELECT
 
         CALL ser_write_raw(fh_vtk, TRIM(out%p_n_bsnm)//raw_suf, rry_ik4)
+        DEALLOCATE(rry_ik4)
 END SELECT
 
 !------------------------------------------------------------------------------
