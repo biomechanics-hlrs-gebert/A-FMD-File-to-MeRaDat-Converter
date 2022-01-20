@@ -509,7 +509,7 @@ INTEGER(KIND=INT16), DIMENSION(:,:,:), INTENT(IN) :: array
 CHARACTER(len=*), INTENT(IN) :: filename
 
 OPEN (UNIT=fh, FILE=TRIM(filename), ACCESS="STREAM", FORM="UNFORMATTED", &
-   CONVERT='BIG_ENDIAN', STATUS="OLD", POSITION="APPEND")                                       
+   CONVERT='BIG_ENDIAN', STATUS="UNKNOWN", POSITION="APPEND")                                       
 WRITE(UNIT=fh) array
 CLOSE(UNIT=fh)
 
@@ -534,7 +534,7 @@ INTEGER(KIND=INT32), DIMENSION(:,:,:), INTENT(IN) :: array
 CHARACTER(len=*), INTENT(IN) :: filename
 
 OPEN (UNIT=fh, FILE=TRIM(filename), ACCESS="STREAM", FORM="UNFORMATTED", &
-   CONVERT='BIG_ENDIAN', STATUS="OLD", POSITION="APPEND")                                       
+   CONVERT='BIG_ENDIAN', STATUS="UNKNOWN", POSITION="APPEND")                                       
 WRITE(UNIT=fh) array
 CLOSE(UNIT=fh)
 
@@ -559,7 +559,7 @@ INTEGER(KIND=INT64), DIMENSION(:,:,:), INTENT(IN) :: array
 CHARACTER(len=*), INTENT(IN) :: filename
 
 OPEN (UNIT=fh, FILE=TRIM(filename), ACCESS="STREAM", FORM="UNFORMATTED", &
-   CONVERT='BIG_ENDIAN', STATUS="OLD", POSITION="APPEND")                                       
+   CONVERT='BIG_ENDIAN', STATUS="UNKNOWN", POSITION="APPEND")                                       
 WRITE(UNIT=fh) array
 CLOSE(UNIT=fh)
 
@@ -584,7 +584,7 @@ REAL(KIND=REAL32), DIMENSION(:,:,:), INTENT(IN) :: array
 CHARACTER(len=*), INTENT(IN) :: filename
 
 OPEN (UNIT=fh, FILE=TRIM(filename), ACCESS="STREAM", FORM="UNFORMATTED", &
-   CONVERT='BIG_ENDIAN', STATUS="OLD", POSITION="APPEND")                                       
+   CONVERT='BIG_ENDIAN', STATUS="UNKNOWN", POSITION="APPEND")                                       
 WRITE(UNIT=fh) array
 CLOSE(UNIT=fh)
 
@@ -609,7 +609,7 @@ REAL(KIND=REAL64), DIMENSION(:,:,:), INTENT(IN) :: array
 CHARACTER(len=*), INTENT(IN) :: filename
 
 OPEN (UNIT=fh, FILE=TRIM(filename), ACCESS="STREAM", FORM="UNFORMATTED", &
-   CONVERT='BIG_ENDIAN', STATUS="OLD", POSITION="APPEND")                                       
+   CONVERT='BIG_ENDIAN', STATUS="UNKNOWN", POSITION="APPEND")                                       
 WRITE(UNIT=fh) array
 CLOSE(UNIT=fh)
 
@@ -644,7 +644,7 @@ ELSE
 END IF
 
 OPEN (UNIT=fh, FILE=TRIM(filename), ACCESS="STREAM", FORM="UNFORMATTED", &
-   CONVERT=TRIM(cnvrt), STATUS="OLD")                                       
+   CONVERT=TRIM(cnvrt), STATUS="UNKNOWN")                                       
 READ(UNIT=fh) array
 CLOSE(UNIT=fh)
 
@@ -679,7 +679,7 @@ ELSE
 END IF
 
 OPEN (UNIT=fh, FILE=TRIM(filename), ACCESS="STREAM", FORM="UNFORMATTED", &
-   CONVERT=TRIM(cnvrt), STATUS="OLD")                                       
+   CONVERT=TRIM(cnvrt), STATUS="UNKNOWN")                                       
 READ(UNIT=fh) array
 CLOSE(UNIT=fh)
 
@@ -714,7 +714,7 @@ ELSE
 END IF
 
 OPEN (UNIT=fh, FILE=TRIM(filename), ACCESS="STREAM", FORM="UNFORMATTED", &
-   CONVERT=TRIM(cnvrt), STATUS="OLD")                                       
+   CONVERT=TRIM(cnvrt), STATUS="UNKNOWN")                                       
 READ(UNIT=fh) array
 CLOSE(UNIT=fh)
 
@@ -749,7 +749,7 @@ ELSE
 END IF
 
 OPEN (UNIT=fh, FILE=TRIM(filename), ACCESS="STREAM", FORM="UNFORMATTED", &
-   CONVERT=TRIM(cnvrt), STATUS="OLD")                                       
+   CONVERT=TRIM(cnvrt), STATUS="UNKNOWN")                                       
 READ(UNIT=fh) array
 CLOSE(UNIT=fh)
 
@@ -784,7 +784,7 @@ ELSE
 END IF
 
 OPEN (UNIT=fh, FILE=TRIM(filename), ACCESS="STREAM", FORM="UNFORMATTED", &
-   CONVERT=TRIM(cnvrt), STATUS="OLD")                                       
+   CONVERT=TRIM(cnvrt), STATUS="UNKNOWN")                                       
 READ(UNIT=fh) array
 CLOSE(UNIT=fh)
 
