@@ -127,29 +127,29 @@ IF (my_rank==0) THEN
         WRITE(fhmeo, '(A)') "# HLRS|NUM Dataset Meta Information"
         WRITE(fhmeo, '(A)') ""
         WRITE(fhmeo, '(A)') "* GENERAL_INFORMATION"
-        CALL meta_write (fhmeo, 'CT_SCAN', in%dataset)
-        CALL meta_write (fhmeo, 'OWNER',         "TBD by user")
-        CALL meta_write (fhmeo, 'OWNER_CONTACT', "TBD by user")
-        CALL meta_write (fhmeo, 'DATE_CREATED',  "TBD by user")
-        CALL meta_write (fhmeo, 'INTERNAL_ID',   "TBD by user")
-        CALL meta_write (fhmeo, 'HISTORY', '(-)' , 1)
+        CALL meta_write('CT_SCAN', in%dataset)
+        CALL meta_write('OWNER',         "TBD by user")
+        CALL meta_write('OWNER_CONTACT', "TBD by user")
+        CALL meta_write('DATE_CREATED',  "TBD by user")
+        CALL meta_write('INTERNAL_ID',   "TBD by user")
+        CALL meta_write('HISTORY', '(-)' , 1)
         
         ! Write original data type to file for documentaroy purposes
-        CALL meta_write (fhmeo, 'TYPE_IMPORT', TRIM(ADJUSTL(type_in)))
-        CALL meta_write (fhmeo, 'TYPE_RAW', TRIM(ADJUSTL(type_out)))
+        CALL meta_write('TYPE_IMPORT', TRIM(ADJUSTL(type_in)))
+        CALL meta_write('TYPE_RAW', TRIM(ADJUSTL(type_out)))
         
         !------------------------------------------------------------------------------
         ! Data always are written as little endian; only vtk requires big endian.
         !------------------------------------------------------------------------------
-        CALL meta_write (fhmeo, 'DATA_BYTE_ORDER'  , "LittleEndian")
-        CALL meta_write (fhmeo, 'DIMENSIONALITY'   , '(-)'  , 3)
-        CALL meta_write (fhmeo, 'DIMENSIONS'       , '(-)'  , dims)
-        CALL meta_write (fhmeo, 'NO_SCALAR_CMPNNTS', '(-)'  , 1)
-        CALL meta_write (fhmeo, 'SPACING'          , '(mm)' , spcng)
-        CALL meta_write (fhmeo, 'ORIGIN_SHIFT_GLBL', '(mm)' , [0._rk, 0._rk, 0._rk])
-        CALL meta_write (fhmeo, 'ORIGIN'           , '(-)'  , [0, 0, 0])
-        CALL meta_write (fhmeo, 'FIELD_OF_VIEW'    , '(mm)' , dims*spcng)
-        CALL meta_write (fhmeo, 'ENTRIES'          , '(-)'  , PRODUCT(dims))
+        CALL meta_write('DATA_BYTE_ORDER'  , "LittleEndian")
+        CALL meta_write('DIMENSIONALITY'   , '(-)'  , 3)
+        CALL meta_write('DIMENSIONS'       , '(-)'  , dims)
+        CALL meta_write('NO_SCALAR_CMPNNTS', '(-)'  , 1)
+        CALL meta_write('SPACING'          , '(mm)' , spcng)
+        CALL meta_write('ORIGIN_SHIFT_GLBL', '(mm)' , [0._rk, 0._rk, 0._rk])
+        CALL meta_write('ORIGIN'           , '(-)'  , [0, 0, 0])
+        CALL meta_write('FIELD_OF_VIEW'    , '(mm)' , dims*spcng)
+        CALL meta_write('ENTRIES'          , '(-)'  , PRODUCT(dims))
     
         FLUSH(fhmeo)
 
@@ -166,10 +166,10 @@ IF (my_rank==0) THEN
 
         CALL meta_invoke(m_rry)
 
-        CALL meta_read(std_out, 'TYPE_RAW'  , m_rry, type_out)
-        CALL meta_read(std_out, 'SPACING'   , m_rry, spcng)
-        CALL meta_read(std_out, 'ORIGIN'    , m_rry, origin)
-        CALL meta_read(std_out, 'DIMENSIONS', m_rry, dims)
+        CALL meta_read('TYPE_RAW'  , m_rry, type_out)
+        CALL meta_read('SPACING'   , m_rry, spcng)
+        CALL meta_read('ORIGIN'    , m_rry, origin)
+        CALL meta_read('DIMENSIONS', m_rry, dims)
 
         CALL write_vtk_struct_points_header &
             (fh_vtk, TRIM(out%p_n_bsnm)//vtk_suf, type_out, spcng, origin, dims)
