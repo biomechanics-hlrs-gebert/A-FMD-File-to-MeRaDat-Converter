@@ -1,7 +1,7 @@
 # File Format to Meta Converter
-![Architecture](https://img.shields.io/badge/Architecture-x86-green)
-![OS](https://img.shields.io/badge/Linux-64Bit-green)
-![version](https://img.shields.io/badge/version-2.0.0-green)
+![Architecture](https://img.shields.io/badge/Architecture-x86_64-green)
+![OS](https://img.shields.io/badge/OS-Linux-green)
+![version](https://img.shields.io/badge/version-1.0.0-green)
 
 Program to convert a *file* into the raw/meta format of my doctoral research project.
 
