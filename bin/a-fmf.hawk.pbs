@@ -1,0 +1,25 @@
+#!/bin/bash
+# ------------------------------------------------------------------------------
+# Batch scipt for HLRS Hawk
+#
+# Author:    Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+# Date:      09.01.2022
+# Last edit: 27.02.2022
+#
+# For use of PBSPro visit:
+# https://kb.hlrs.de/platforms/index.php/Batch_System_PBSPro_(Hawk)
+# ------------------------------------------------------------------------------
+#PBS -N fmf
+#PBS -l select=1:node_type=rome:mpiprocs=128:node_type_mem=256gb
+#PBS -l walltime=10:00:00
+#
+# Change to the direcotry that the job was submitted from
+cd "$PBS_O_WORKDIR" || exit
+#
+# Load module
+module load mpi/openmpi/4.1.1-gnu-11.1.0
+#
+# Launch the parallel mpi application
+mpirun -np 128 ./bin/xtom_v1.0.0_x86_64 "$PBS_O_WORKDIR" ./datasets/FH01-1_mu_Prod_vtk_original.vtk
+mpirun -np 128 ./bin/xtom_v1.0.0_x86_64 "$PBS_O_WORKDIR" ./datasets/FH01-2_mu_Prod_vtk_original.vtk
+mpirun -np 128 ./bin/xtom_v1.0.0_x86_64 "$PBS_O_WORKDIR" ./datasets/FH01-3_mu_Prod_vtk_original.vtk
