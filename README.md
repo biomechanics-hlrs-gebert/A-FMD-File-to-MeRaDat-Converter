@@ -1,9 +1,9 @@
 # File Format to Meta Converter
 [![DOI](https://zenodo.org/badge/405168166.svg)](https://zenodo.org/badge/latestdoi/405168166)
 [![License: MIT](https://img.shields.io/badge/License-MIT-success.svg)](https://opensource.org/licenses/MIT)
-![Architecture](https://img.shields.io/badge/Architecture-x86_64-green)
-![OS](https://img.shields.io/badge/OS-Linux-green)
-![version](https://img.shields.io/badge/version-1.0.0-green)
+![Architecture](https://img.shields.io/badge/Architecture-x86_64-blue)
+![OS](https://img.shields.io/badge/OS-Linux-blue)
+![version](https://img.shields.io/badge/version-1.0.0-blue)
 
 Program to convert \*.vtk files with structured points to raw/meta format and vice versa. Part of my PhD research project. 
 
