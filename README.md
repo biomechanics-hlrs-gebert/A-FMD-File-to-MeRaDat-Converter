@@ -3,9 +3,7 @@
 ![OS](https://img.shields.io/badge/OS-Linux-green)
 ![version](https://img.shields.io/badge/version-1.0.0-green)
 
-Program to convert a *file* into the raw/meta format of my doctoral research project.
-
-Currently, only *.vtk structured point files are accepted since it is the only required format. 
+Program to convert \*.vtk files with structured points to raw/meta format and vice versa. Part of my PhD research project. 
 
 The program essentially introduces the meta file to the process chain.
 ##  Meta File Format
