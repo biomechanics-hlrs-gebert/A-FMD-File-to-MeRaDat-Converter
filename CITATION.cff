@@ -5,9 +5,9 @@ authors:
   - family-names: "Gebert"
     given-names: "Johannes"
     orcid: "https://orcid.org/0000-0002-5245-2418"
-title: "File Format to Meta Converter (XTOM)"
-version: 5.0.0
-date-released: 2022-01-09
+title: "File Format to Meta Converter (FMF)"
+version: 1.0.0
+date-released: 2022-02-27
 keywords:
   - Computed Tomography
   - High-Performance Computing
@@ -20,14 +20,14 @@ keywords:
   - x86
   - Linux
 license: "CC-BY-4.0"
-url: "https://github.com/biomechanics-hlrs-gebert/A-XTOM-File-Format-to-Meta-Converter"
+url: "https://github.com/biomechanics-hlrs-gebert/A-FMF-File-to-Meta-Format-Converter"
 preferred-citation:
   type: software-code
   authors:
   - family-names: "Gebert"
     given-names: "Johannes"
     orcid: "https://orcid.org/0000-0002-5245-2418"
-  title: "File Format to Meta Converter (XTOM)"
+  title: "File Format to Meta Converter (FMF)"
   version: 1.0.0
-  date-released: 2022-01-09
-  url: "https://github.com/biomechanics-hlrs-gebert/A-XTOM-File-Format-to-Meta-Converter"
+  date-released: 2022-02-27
+  url: "https://github.com/biomechanics-hlrs-gebert/A-FMF-File-to-Meta-Format-Converter"
