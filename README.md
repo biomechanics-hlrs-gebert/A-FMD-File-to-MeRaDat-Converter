@@ -5,10 +5,10 @@
 ![OS](https://img.shields.io/badge/OS-Linux-blue)
 ![version](https://img.shields.io/badge/version-1.0.0-blue)
 
-Program to convert \*.vtk files with structured points to raw/meta format and vice versa. Part of my PhD research project. 
+Program to convert \*.vtk files with structured points to the MeRaDat format and vice versa. MeRaDat expands to **Me**ta/**Ra**w **Dat**a-format. Part of my PhD research project. 
 
 The program essentially introduces the meta file to the process chain.
-##  Meta File Format
+##  MeRaDat
 The restart handling is not adopted for this program as the need for compute time and the probability of failure are negligible.
 ## Usage:
 The program currently only accepts *.vtk files with a proper meta basename.
