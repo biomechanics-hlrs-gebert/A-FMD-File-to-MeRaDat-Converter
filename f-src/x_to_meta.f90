@@ -66,7 +66,7 @@ IF (my_rank==0) THEN
 
     !------------------------------------------------------------------------------
     ! Parse the command arguments
-    ! restart_cmd_arg not used in fmf, since lock file handling is not relevant.
+    ! restart_cmd_arg not used in fmd, since lock file handling is not relevant.
     ! Implemented here to sustain api compatibility (maybe a bad API :-)
     !------------------------------------------------------------------------------
     CALL get_cmd_args(binary, filename, stp, restart_cmd_arg, cmd_arg_history)
