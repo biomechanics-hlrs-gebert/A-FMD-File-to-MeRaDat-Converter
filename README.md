@@ -1,4 +1,4 @@
-# File Format to Meta Converter
+# File Format to MeRaDat Converter
 [![DOI](https://zenodo.org/badge/405168166.svg)](https://zenodo.org/badge/latestdoi/405168166)
 [![License: MIT](https://img.shields.io/badge/License-MIT-success.svg)](https://opensource.org/licenses/MIT)
 ![Architecture](https://img.shields.io/badge/Architecture-x86_64-blue)
