@@ -241,7 +241,7 @@ ELSE
             CASE('-restart', '-Restart')
                 restart = 'Y'
             CASE('v', '-Version', '-version')
-                CALL show_title()
+                CALL show_title([""])
                 stp = .TRUE. 
             CASE('h', '-Help', '-help')
                 CALL usage(binary)
@@ -270,13 +270,23 @@ END SUBROUTINE get_cmd_args
 !> @brief
 !> Show brief information about the program. Variables from global_std module!
 !------------------------------------------------------------------------------
-SUBROUTINE show_title()
+SUBROUTINE show_title(authors)
+
+CHARACTER(LEN=*), DIMENSION(:), INTENT(IN) :: authors
+INTEGER(KIND=ik) :: ii
+
 WRITE(std_out, FMT_TXT_SEP)
 WRITE(std_out, FMT_TXT) 'High-Performance Computing Center | Stuttgart (HLRS)'
 WRITE(std_out, FMT_TXT) ''
 WRITE(std_out, FMT_TXT) TRIM(ADJUSTL(longname))
 WRITE(std_out, FMT_TXT) ''     
-WRITE(std_out, FMT_TXT) 'Developer & maintainer: Johannes Gebert, M.Sc. (HLRS, NUM)'
+
+DO ii=1, SIZE(authors)
+    IF (LEN_TRIM(authors(ii)) > 0) THEN
+        WRITE(std_out, FMT_TXT) 'Developer/maintainer: '//TRIM(authors(ii))
+    END IF
+END DO 
+
 WRITE(std_out, FMT_TXT_SEP)
 END SUBROUTINE show_title
 

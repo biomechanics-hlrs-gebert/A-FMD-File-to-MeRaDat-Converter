@@ -14,10 +14,10 @@ ifeq ($(PROVIDES_GIT),YES)
 # Get git hash https://jblevins.org/log/vc
 # rev = $(shell git describe --tags --always)
 	rev = $(shell git rev-parse HEAD)
-	trgt_vrsn = $(shell git describe --tags --abbrev=0 | tee .version)
+	trgt_vrsn = $(shell git describe --tags --abbrev=0 | tee VERSION)
 else
 	rev = NO_GIT_REPOSITORY
-	trgt_vrsn = $(shell cat .version)
+	trgt_vrsn = $(shell cat VERSION)
 endif
 # -----------------------------------------------------------------------------
 # Check for environment
