@@ -224,6 +224,44 @@ CALL MPI_FILE_CLOSE(fh, ierr)
 
 END SUBROUTINE mpi_read_raw_ik4
 
+!------------------------------------------------------------------------------
+! SUBROUTINE: uik2_to_ik2
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Convert unsigned int2 to int 2 data. @Datarepresenation: 
+!> NATIVE=LittleEndian on file system, EXTERNAL32 --> BigEndian. 
+!> Please check and test if you need this feature!! Depends on Hardware.
+!
+!> @description
+!> Fortran does not know this shit. Therefore a workaround...
+!
+!> @param[in] subarray_in Input data
+!> @param[out] subarray_out Output data
+!------------------------------------------------------------------------------  
+SUBROUTINE uik2_to_ik2(subarray_in, subarray_out)
+
+INTEGER(KIND=INT16), DIMENSION (:,:,:), INTENT(IN) :: subarray_in
+INTEGER(KIND=INT16), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray_out
+INTEGER(KIND=ik) :: ii, jj, kk
+INTEGER(KIND=ik), DIMENSION(3) :: shp
+
+!------------------------------------------------------------------------------  
+! Storing the array with + 65536 will cut off the image.
+! At least INT32 required. All of the required variables are INT32.
+!------------------------------------------------------------------------------  
+INTEGER(KIND=INT32), PARAMETER :: conv_param=0, offset= 32768	
+
+shp = SHAPE(subarray_in)
+
+ALLOCATE(subarray_out(shp(1), shp(2), shp(3)))
+subarray_out = INT(0, KIND=INT16)
+
+subarray_out(ii,jj,kk) = subarray_in(ii,jj,kk) - offset	
+
+END SUBROUTINE uik2_to_ik2
+
 
 !------------------------------------------------------------------------------
 ! SUBROUTINE: uik2_to_ik4
@@ -231,7 +269,7 @@ END SUBROUTINE mpi_read_raw_ik4
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
 !> @brief
-!> Convert unsigned int2 to int 2 data. @Datarepresenation: 
+!> Convert unsigned int2 to int 4 data. @Datarepresenation: 
 !> NATIVE=LittleEndian on file system, EXTERNAL32 --> BigEndian. 
 !> Please check and test if you need this feature!! Depends on Hardware.
 !

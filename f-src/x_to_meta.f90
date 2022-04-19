@@ -119,6 +119,10 @@ IF (my_rank==0) THEN
             CASE('ik2') ; type_out = 'ik2'
         END SELECT
 
+        IF (in%features(LEN_TRIM(in%features)-4:LEN_TRIM(in%features)) == "-ik2") THEN
+            IF ((type_in == "uik2") .OR. (type_in == "ik2")) type_out = "ik2"
+        END IF 
+
         !------------------------------------------------------------------------------
         ! Write meta data 
         !------------------------------------------------------------------------------
@@ -249,9 +253,14 @@ SELECT CASE(type_in)
         CALL mpi_read_raw(TRIM(in%p_n_bsnm)//suffix, INT(hdr, KIND=8), dims, rry_dims, subarray_origin, rry_ik4, TRIM(dtrep))
     CASE('ik2', 'uik2') 
         CALL mpi_read_raw(TRIM(in%p_n_bsnm)//suffix, INT(hdr, KIND=8), dims, rry_dims, subarray_origin, rry_ik2, TRIM(dtrep))
-        IF(type_in=='uik2') THEN
+
+        IF((type_in == 'uik2') .AND. (type_out == 'ik4')) THEN
             CALL uik2_to_ik4(rry_ik2, rry_ik4)
             DEALLOCATE(rry_ik2)
+        END IF 
+
+        IF((type_in == 'uik2') .AND. (type_out == 'ik2')) THEN
+            CALL uik2_to_ik2(rry_ik2, rry_ik2)
         END IF 
 END SELECT
 
@@ -309,7 +318,7 @@ IF(my_rank == 0) THEN
 
     IF (file_type_in == "vtk") THEN
         CALL meta_signing(binary)
-        CALL meta_close(size_mpi)
+        CALL meta_close()
 
     ELSE IF (file_type_in == "meta") THEN
         CALL write_vtk_struct_points_footer (fh_vtk, TRIM(out%p_n_bsnm)//suffix)
