@@ -119,8 +119,10 @@ IF (my_rank==0) THEN
             CASE('ik2') ; type_out = 'ik2'
         END SELECT
 
-        IF (in%features(LEN_TRIM(in%features)-4:LEN_TRIM(in%features)) == "-ik2") THEN
+        IF (in%features(LEN_TRIM(in%features)-3:LEN_TRIM(in%features)) == "-ik2") THEN
             IF ((type_in == "uik2") .OR. (type_in == "ik2")) type_out = "ik2"
+
+             WRITE(std_out, FMT_MSG_xAF0) "uik2 to ik2 conversion requested by '-ik2'!"
         END IF 
 
         !------------------------------------------------------------------------------
@@ -260,7 +262,7 @@ SELECT CASE(type_in)
         END IF 
 
         IF((type_in == 'uik2') .AND. (type_out == 'ik2')) THEN
-            CALL uik2_to_ik2(rry_ik2, rry_ik2)
+            CALL uik2_to_ik2(rry_ik2)
         END IF 
 END SELECT
 

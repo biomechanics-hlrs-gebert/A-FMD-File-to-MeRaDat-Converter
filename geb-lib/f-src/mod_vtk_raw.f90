@@ -240,26 +240,36 @@ END SUBROUTINE mpi_read_raw_ik4
 !> @param[in] subarray_in Input data
 !> @param[out] subarray_out Output data
 !------------------------------------------------------------------------------  
-SUBROUTINE uik2_to_ik2(subarray_in, subarray_out)
+SUBROUTINE uik2_to_ik2(subarray)
 
-INTEGER(KIND=INT16), DIMENSION (:,:,:), INTENT(IN) :: subarray_in
-INTEGER(KIND=INT16), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray_out
+INTEGER(KIND=INT16), DIMENSION (:,:,:), INTENT(INOUT) :: subarray
 INTEGER(KIND=ik) :: ii, jj, kk
 INTEGER(KIND=ik), DIMENSION(3) :: shp
+
+INTEGER(KIND=INT32), DIMENSION (:,:,:), ALLOCATABLE :: temp
 
 !------------------------------------------------------------------------------  
 ! Storing the array with + 65536 will cut off the image.
 ! At least INT32 required. All of the required variables are INT32.
 !------------------------------------------------------------------------------  
-INTEGER(KIND=INT32), PARAMETER :: conv_param=0, offset= 32768	
+shp = SHAPE(subarray)
 
-shp = SHAPE(subarray_in)
+ALLOCATE(temp(shp(1), shp(2), shp(3)))
+temp = 0
 
-ALLOCATE(subarray_out(shp(1), shp(2), shp(3)))
-subarray_out = INT(0, KIND=INT16)
+DO kk=1, shp(3)
+DO jj=1, shp(2)
+DO ii=1, shp(1)
+   IF(subarray(ii,jj,kk) .LT. 0) THEN
+      temp(ii,jj,kk) = subarray(ii,jj,kk) + 65536
+   END IF 
+END DO
+END DO
+END DO
 
-subarray_out(ii,jj,kk) = subarray_in(ii,jj,kk) - offset	
+subarray = INT(temp - 32768, KIND=INT16)
 
+DEALLOCATE(temp)
 END SUBROUTINE uik2_to_ik2
 
 
@@ -458,7 +468,7 @@ CHARACTER(LEN=*), INTENT(IN) :: filename
 INTEGER(KIND=MPI_OFFSET_KIND), INTENT(IN) :: disp
 INTEGER(KIND=ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
 INTEGER(KIND=INT16), DIMENSION (:,:,:), INTENT(IN) :: subarray
-CHARACTER(LEN=scl), INTENT(IN), OPTIONAL :: dtrep
+CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
 ! file handle fh is provided by mpi itself and mustn't be given by the program/call/user
 INTEGER(KIND=mik)  :: fh, ierr, type_subarray
@@ -514,7 +524,7 @@ CHARACTER(LEN=*), INTENT(IN) :: filename
 INTEGER(KIND=MPI_OFFSET_KIND), INTENT(IN) :: disp
 INTEGER(KIND=ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
 INTEGER(KIND=INT32), DIMENSION (:,:,:), INTENT(IN) :: subarray
-CHARACTER(LEN=scl), INTENT(IN), OPTIONAL :: dtrep
+CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
 ! file handle fh is provided by mpi itself and mustn't be given by the program/call/user
 INTEGER(KIND=mik)  :: fh, ierr, type_subarray
