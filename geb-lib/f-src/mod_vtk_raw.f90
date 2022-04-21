@@ -261,7 +261,9 @@ DO kk=1, shp(3)
 DO jj=1, shp(2)
 DO ii=1, shp(1)
    IF(subarray(ii,jj,kk) .LT. 0) THEN
-      temp(ii,jj,kk) = subarray(ii,jj,kk) + 65536
+      temp(ii,jj,kk) = INT(subarray(ii,jj,kk), KIND=INT32) + INT(65536, KIND=INT32)
+   ELSE
+      temp(ii,jj,kk) = INT(subarray(ii,jj,kk), KIND=INT32)
    END IF 
 END DO
 END DO
