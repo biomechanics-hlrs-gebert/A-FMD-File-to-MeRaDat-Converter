@@ -4,7 +4,7 @@
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
 ! DESCRIPTION: 
-!> Module containing all recurring definitions of kinds and vmbers.
+!> Module containing all recurring definitions of kinds and numbers.
 !------------------------------------------------------------------------------
 MODULE mechanical
 
@@ -12,7 +12,7 @@ USE global_std
 
 IMPLICIT NONE
 
-!----------------------------------------------------------TD00-0_tc_Dev_tensor_data.meta--------------------
+!------------------------------------------------------------------------------
 ! Describe a tensor and its state in respect to the position of the control
 ! volume. Required to fully trace the origin of a stiffness matrix (tensor).
 ! 

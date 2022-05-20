@@ -20,18 +20,81 @@ REAL(KIND=rk), PARAMETER :: pi         = 4.D0*DATAN(1.D0)       !acos(-1._rk)
 REAL(KIND=rk), PARAMETER :: pihalf     = 4.D0*DATAN(1.D0)/2._rk !acos(-1._rk)
 REAL(KIND=rk), PARAMETER :: inv180     = 1._rk/180._rk
 REAL(KIND=rk), PARAMETER :: pi_div_180 = acos(-1._rk)/180._rk   ! * deg = rad
+REAL(KIND=rk), PARAMETER :: div_180_pi = 180._rk/acos(-1._rk)   ! * rad = deg
 
 !-- Higher dimensional numbers
-TYPE quaternion
+TYPE duaternion
    REAL (KIND=rk) :: w,x,y,z
-END TYPE quaternion
-
+END TYPE duaternion
+TYPE suaternion
+   REAL (KIND=rk) :: w,x,y,z
+END TYPE suaternion
 INTERFACE zero_thres
    MODULE PROCEDURE zerothres_num
    MODULE PROCEDURE zerothres_OnD
    MODULE PROCEDURE zerothres_TwD
    MODULE PROCEDURE zerothres_ThD
 END INTERFACE zero_thres
+
+! INTERFACE eul_2_un_quat 
+!     MODULE PROCEDURE eul_2_un_quat_rk
+!     MODULE PROCEDURE eul_2_un_quat_sk
+! END INTERFACE eul_2_un_quat
+
+! INTERFACE check_un_quat
+!     MODULE PROCEDURE check_un_quat_rk
+!     MODULE PROCEDURE check_un_quat_sk
+! END INTERFACE check_un_quat
+
+! INTERFACE quat_norm
+!     MODULE PROCEDURE quat_norm_rk
+!     MODULE PROCEDURE quat_norm_sk
+! END INTERFACE quat_norm
+
+! INTERFACE q_add
+!     MODULE PROCEDURE q_add_rk
+!     MODULE PROCEDURE q_add_sk
+! END INTERFACE q_add
+
+! INTERFACE q_mult
+!     MODULE PROCEDURE q_mult_rk
+!     MODULE PROCEDURE q_mult_sk
+! END INTERFACE q_mult
+
+! INTERFACE q_dvd
+!     MODULE PROCEDURE q_dvd_rk
+!     MODULE PROCEDURE q_dvd_sk
+! END INTERFACE q_dvd
+
+! INTERFACE quat_prod
+!     MODULE PROCEDURE quat_prod_rk
+!     MODULE PROCEDURE quat_prod_sk
+! END INTERFACE quat_prod
+
+! INTERFACE conjugate_quat
+!     MODULE PROCEDURE conjugate_quat_rk
+!     MODULE PROCEDURE conjugate_quat_sk
+! END INTERFACE conjugate_quat
+
+! INTERFACE rotate_point
+!     MODULE PROCEDURE rotate_point_rk
+!     MODULE PROCEDURE rotate_point_sk
+! END INTERFACE rotate_point
+
+! INTERFACE quat_2_rot_mat
+!     MODULE PROCEDURE quat_2_rot_mat_rk
+!     MODULE PROCEDURE quat_2_rot_mat_sk
+! END INTERFACE quat_2_rot_mat
+
+! INTERFACE crpr
+!     MODULE PROCEDURE crpr_rk
+!     MODULE PROCEDURE crpr_sk
+! END INTERFACE crpr
+
+! INTERFACE dist_pnt_pln_by_pnts
+!     MODULE PROCEDURE dist_pnt_pln_by_pnts_rk
+!     MODULE PROCEDURE dist_pnt_pln_by_pnts_sk
+! END INTERFACE dist_pnt_pln_by_pnts
 
 CONTAINS
 
@@ -386,7 +449,7 @@ SUBROUTINE zerothres_ThD(ThD, thres)
 END SUBROUTINE zerothres_ThD
 
 !------------------------------------------------------------------------------
-! FUNCTION: eul_2_un_quat
+! FUNCTION: eul_2_un_quat_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
@@ -399,33 +462,33 @@ END SUBROUTINE zerothres_ThD
 !> euler_radians(3) -> z-axis -> "gamma"
 !
 !> @param[in] euler_radians Euler radians
-!> @return eul_2_un_quat Unit Quaternion
+!> @return eul_2_un_quat_rk Unit Quaternion
 !------------------------------------------------------------------------------  
-FUNCTION eul_2_un_quat (euler_radians)
+FUNCTION eul_2_un_quat_rk (euler_radians)
 
-    REAL (KIND=rk) , DIMENSION(3) :: euler_radians
-    TYPE(Quaternion) :: eul_2_un_quat
+    REAL(KIND=rk), DIMENSION(3) :: euler_radians, radians
+    TYPE(duaternion) :: eul_2_un_quat_rk
 
     REAL (KIND=rk) :: ca, cb, cg, sa, sb, sg
 
-    euler_radians = euler_radians * 0.5_rk ! angle/2 to get a quaternion!
+    radians = euler_radians * 0.5_rk ! angle/2 to get a quaternion!
 
-    ca = COS(euler_radians(1))
-    sa = SIN(euler_radians(1))
-    cb = COS(euler_radians(2))
-    sb = SIN(euler_radians(2))
-    cg = COS(euler_radians(3))
-    sg = SIN(euler_radians(3))
+    ca = COS(radians(1))
+    sa = SIN(radians(1))
+    cb = COS(radians(2))
+    sb = SIN(radians(2))
+    cg = COS(radians(3))
+    sg = SIN(radians(3))
 
-    eul_2_un_quat%w = ca * cb * cg + sa * sb * sg
-    eul_2_un_quat%x = sa * cb * cg - ca * sb * sg
-    eul_2_un_quat%y = ca * sb * cg + sa * cb * sg
-    eul_2_un_quat%z = ca * cb * sg - sa * sb * cg
+    eul_2_un_quat_rk%w = ca * cb * cg + sa * sb * sg
+    eul_2_un_quat_rk%x = sa * cb * cg - ca * sb * sg
+    eul_2_un_quat_rk%y = ca * sb * cg + sa * cb * sg
+    eul_2_un_quat_rk%z = ca * cb * sg - sa * sb * cg
 
-END FUNCTION eul_2_un_quat
+END FUNCTION eul_2_un_quat_rk
 
 !------------------------------------------------------------------------------
-! FUNCTION: check_un_quat
+! FUNCTION: check_un_quat_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
@@ -433,27 +496,27 @@ END FUNCTION eul_2_un_quat
 !> Check whether it is a uni quaternion
 !
 !> @param[in] quat Quaternion
-!> @return check_un_quat True or false
+!> @return check_un_quat_rk True or false
 !------------------------------------------------------------------------------  
-FUNCTION check_un_quat (quat)
+FUNCTION check_un_quat_rk (quat)
 
-    TYPE(Quaternion) :: quat
-    LOGICAL :: check_un_quat
+    TYPE(duaternion) :: quat
+    LOGICAL :: check_un_quat_rk
 
     REAL(KIND=rk) :: rslt
 
     rslt = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
 
     IF (rslt-1_rk <= num_zero) THEN
-        check_un_quat = .TRUE.
+        check_un_quat_rk = .TRUE.
     ELSE
-        check_un_quat = .FALSE.
+        check_un_quat_rk = .FALSE.
     END IF
 
-END FUNCTION check_un_quat
+END FUNCTION check_un_quat_rk
 
 !------------------------------------------------------------------------------
-! FUNCTION: quat_norm
+! FUNCTION: quat_norm_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
@@ -461,19 +524,19 @@ END FUNCTION check_un_quat
 !> Quaternion norm
 !
 !> @param[in] quat Quaternion
-!> @return quat_norm Norm of the quaternion
+!> @return quat_norm_rk Norm of the quaternion
 !------------------------------------------------------------------------------  
-FUNCTION quat_norm (quat)
+FUNCTION quat_norm_rk (quat)
 
-    TYPE(Quaternion) :: quat
-    REAL(KIND=rk) :: quat_norm
+    TYPE(duaternion) :: quat
+    REAL(KIND=rk) :: quat_norm_rk
 
-    quat_norm = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
+    quat_norm_rk = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
 
-END FUNCTION quat_norm
+END FUNCTION quat_norm_rk
 
 !------------------------------------------------------------------------------
-! FUNCTION: q_add
+! FUNCTION: q_add_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
@@ -482,22 +545,22 @@ END FUNCTION quat_norm
 !
 !> @param[in] q1 Quaternion
 !> @param[in] scalar Scalar
-!> @return q_add Result of the addition
+!> @return q_add_rk Result of the addition
 !------------------------------------------------------------------------------  
-FUNCTION q_add(q1, scalar)
+FUNCTION q_add_rk(q1, scalar)
 
-    TYPE(Quaternion) :: q1, q_add
+    TYPE(duaternion) :: q1, q_add_rk
     REAL(KIND=rk) :: scalar
 
-    q_add%w = q1%w + scalar
-    q_add%x = q1%x + scalar
-    q_add%y = q1%y + scalar
-    q_add%z = q1%z + scalar
+    q_add_rk%w = q1%w + scalar
+    q_add_rk%x = q1%x + scalar
+    q_add_rk%y = q1%y + scalar
+    q_add_rk%z = q1%z + scalar
 
-END FUNCTION q_add
+END FUNCTION q_add_rk
 
 !------------------------------------------------------------------------------
-! FUNCTION: q_mult
+! FUNCTION: q_mult_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
@@ -508,20 +571,20 @@ END FUNCTION q_add
 !> @param[in] scalar Scalar
 !> @return q_add Result of the multiplication
 !------------------------------------------------------------------------------  
-FUNCTION q_mult (q1, scalar)
+FUNCTION q_mult_rk (q1, scalar)
 
-    TYPE(Quaternion) :: q1, q_mult
+    TYPE(duaternion) :: q1, q_mult_rk
     REAL(KIND=rk) :: scalar
 
-    q_mult%w = q1%w * scalar
-    q_mult%x = q1%x * scalar
-    q_mult%y = q1%y * scalar
-    q_mult%z = q1%z * scalar
+    q_mult_rk%w = q1%w * scalar
+    q_mult_rk%x = q1%x * scalar
+    q_mult_rk%y = q1%y * scalar
+    q_mult_rk%z = q1%z * scalar
 
-END FUNCTION q_mult
+END FUNCTION q_mult_rk
 
 !------------------------------------------------------------------------------
-! FUNCTION: q_dvd
+! FUNCTION: q_dvd_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
@@ -532,43 +595,43 @@ END FUNCTION q_mult
 !> @param[in] scalar Scalar
 !> @return q_add Result of the division
 !------------------------------------------------------------------------------ 
-FUNCTION q_dvd (q1, scalar)
+FUNCTION q_dvd_rk (q1, scalar)
 
-    TYPE(Quaternion) :: q1, q_dvd
+    TYPE(duaternion) :: q1, q_dvd_rk
     REAL(KIND=rk) :: scalar
     
-    q_dvd%w = q1%w / scalar
-    q_dvd%x = q1%x / scalar
-    q_dvd%y = q1%y / scalar
-    q_dvd%z = q1%z / scalar
+    q_dvd_rk%w = q1%w / scalar
+    q_dvd_rk%x = q1%x / scalar
+    q_dvd_rk%y = q1%y / scalar
+    q_dvd_rk%z = q1%z / scalar
 
-END FUNCTION q_dvd
+END FUNCTION q_dvd_rk
 
 !------------------------------------------------------------------------------
-! FUNCTION: quat_prod
+! FUNCTION: quat_prod_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
 !> @brief
-!> Quaternion division. Element wise, not to be confused with quat_prod!
+!> Quaternion division. Element wise, not to be confused with quat_prod_rk!
 !
 !> @param[in] q1 Quaternion
 !> @param[in] q2 Quaternion
-!> @return quat_prod Result of the quaternion multiplication
+!> @return quat_prod_rk Result of the quaternion multiplication
 !------------------------------------------------------------------------------ 
-FUNCTION quat_prod (q1, q2)
+FUNCTION quat_prod_rk (q1, q2)
 
-    TYPE(Quaternion) :: q1, q2, quat_prod
+    TYPE(duaternion) :: q1, q2, quat_prod_rk
 
-    quat_prod%w = q1%w*q2%w-q1%x*q2%x-q1%y*q2%y-q1%z*q2%z
-    quat_prod%x = q1%w*q2%x+q1%x*q2%w+q1%y*q2%z-q1%z*q2%y
-    quat_prod%y = q1%w*q2%y-q1%x*q2%z+q1%y*q2%w+q1%z*q2%x
-    quat_prod%z = q1%w*q2%z+q1%x*q2%y-q1%y*q2%x+q1%z*q2%w
+    quat_prod_rk%w = q1%w*q2%w-q1%x*q2%x-q1%y*q2%y-q1%z*q2%z
+    quat_prod_rk%x = q1%w*q2%x+q1%x*q2%w+q1%y*q2%z-q1%z*q2%y
+    quat_prod_rk%y = q1%w*q2%y-q1%x*q2%z+q1%y*q2%w+q1%z*q2%x
+    quat_prod_rk%z = q1%w*q2%z+q1%x*q2%y-q1%y*q2%x+q1%z*q2%w
 
-END FUNCTION quat_prod
+END FUNCTION quat_prod_rk
 
 !------------------------------------------------------------------------------
-! FUNCTION: conjugate_quat
+! FUNCTION: conjugate_quat_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
@@ -576,21 +639,21 @@ END FUNCTION quat_prod
 !> Conjugate quaternion.
 !
 !> @param[in] quat Quaternion
-!> @return conjugate_quat Conjugate quaternion
+!> @return conjugate_quat_rk Conjugate quaternion
 !------------------------------------------------------------------------------ 
-FUNCTION conjugate_quat(quat)
+FUNCTION conjugate_quat_rk(quat)
 
-    TYPE(Quaternion) :: quat, conjugate_quat
+    TYPE(duaternion) :: quat, conjugate_quat_rk
 
-    conjugate_quat%w =   quat%w
-    conjugate_quat%x = - quat%x
-    conjugate_quat%y = - quat%y
-    conjugate_quat%z = - quat%z
+    conjugate_quat_rk%w =   quat%w
+    conjugate_quat_rk%x = - quat%x
+    conjugate_quat_rk%y = - quat%y
+    conjugate_quat_rk%z = - quat%z
 
-END FUNCTION conjugate_quat
+END FUNCTION conjugate_quat_rk
 
 !------------------------------------------------------------------------------
-! FUNCTION: rotate_point
+! FUNCTION: rotate_point_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
@@ -599,31 +662,31 @@ END FUNCTION conjugate_quat
 !
 !> @param[in] quat Quaternion
 !> @param[in] point Point to rotate with quaternion.
-!> @return rotate_point Rotated point.
+!> @return rotate_point_rk Rotated point.
 !------------------------------------------------------------------------------
-FUNCTION rotate_point(quat, point)
+FUNCTION rotate_point_rk(quat, point)
 
-    TYPE(Quaternion) :: quat
-    REAL(KIND=rk), DIMENSION(3) :: point, rotate_point
+    TYPE(duaternion) :: quat
+    REAL(KIND=rk), DIMENSION(3) :: point, rotate_point_rk
 
-    TYPE(Quaternion) :: pnt, rtt_pnt
+    TYPE(duaternion) :: pnt, rtt_pnt
 
     pnt%w = 0._rk
     pnt%x = point(1)
     pnt%y = point(2)
     pnt%z = point(3)
 
-    rtt_pnt = quat_prod(quat_prod(quat, pnt), conjugate_quat(quat))
+    rtt_pnt = quat_prod_rk(quat_prod_rk(quat, pnt), conjugate_quat_rk(quat))
 
-    rotate_point(1) = rtt_pnt%x
-    rotate_point(2) = rtt_pnt%y
-    rotate_point(3) = rtt_pnt%z
+    rotate_point_rk(1) = rtt_pnt%x
+    rotate_point_rk(2) = rtt_pnt%y
+    rotate_point_rk(3) = rtt_pnt%z
 
-END FUNCTION rotate_point
+END FUNCTION rotate_point_rk
 
 
 !------------------------------------------------------------------------------
-! FUNCTION: quat_2_rot_mat
+! FUNCTION: quat_2_rot_mat_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
@@ -631,25 +694,288 @@ END FUNCTION rotate_point
 !> Quaternion to rotation matrix.
 !
 !> @param[in] q Quaternion
-!> @return quat_2_rot_mat Rotation matrix
+!> @return quat_2_rot_mat_rk Rotation matrix
 !------------------------------------------------------------------------------
-FUNCTION quat_2_rot_mat(q)
+FUNCTION quat_2_rot_mat_rk(q)
 
-    TYPE(Quaternion) :: q
-    REAL(KIND=rk), DIMENSION(3,3) :: quat_2_rot_mat
+    TYPE(duaternion) :: q
+    REAL(KIND=rk), DIMENSION(3,3) :: quat_2_rot_mat_rk
 
-    quat_2_rot_mat(1,:) = [ q%w**2 + q%x**2 - q%y**2 - q%z**2  , &
+    quat_2_rot_mat_rk(1,:) = [ q%w**2 + q%x**2 - q%y**2 - q%z**2  , &
         2._rk*q%x*q%y - 2._rk*q%w*q%z , 2._rk*q%x*q%z - 2._rk*q%w*q%y  ]
-    quat_2_rot_mat(2,:) = [ 2._rk*q%x*q%y + 2._rk*q%w*q%z , &
+    quat_2_rot_mat_rk(2,:) = [ 2._rk*q%x*q%y + 2._rk*q%w*q%z , &
         q%w**2 - q%x**2 + q%y**2 + - q%z**2 , 2._rk*q%y*q%z - 2._rk*q%w*q%x ]
-    quat_2_rot_mat(3,:) = [ 2._rk*q%x*q%z - 2._rk*q%w*q%y , &
+    quat_2_rot_mat_rk(3,:) = [ 2._rk*q%x*q%z - 2._rk*q%w*q%y , &
         2._rk*q%y*q%z + 2._rk*q%w*q%x , q%w**2 - q%x**2 - q%y**2 + q%z**2   ]
 
-END FUNCTION quat_2_rot_mat
+END FUNCTION quat_2_rot_mat_rk
 
 
 !------------------------------------------------------------------------------
-! FUNCTION: crpr
+! FUNCTION: eul_2_un_quat_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Returns a unit Quaternion based on 3 Euler Angles [radians]
+!
+!> @description
+!> euler_radians(1) -> x-axis -> "alpha"
+!> euler_radians(2) -> y-axis -> "beta"
+!> euler_radians(3) -> z-axis -> "gamma"
+!
+!> @param[in] euler_radians Euler radians
+!> @return eul_2_un_quat_sk Unit Quaternion
+!------------------------------------------------------------------------------  
+FUNCTION eul_2_un_quat_sk (euler_radians)
+
+    REAL(KIND=sk) , DIMENSION(3) :: euler_radians, radians
+    TYPE(suaternion) :: eul_2_un_quat_sk
+
+    REAL (KIND=sk) :: ca, cb, cg, sa, sb, sg
+
+    radians = euler_radians * 0.5_rk ! angle/2 to get a quaternion!
+
+    ca = COS(radians(1))
+    sa = SIN(radians(1))
+    cb = COS(radians(2))
+    sb = SIN(radians(2))
+    cg = COS(radians(3))
+    sg = SIN(radians(3))
+
+    eul_2_un_quat_sk%w = ca * cb * cg + sa * sb * sg
+    eul_2_un_quat_sk%x = sa * cb * cg - ca * sb * sg
+    eul_2_un_quat_sk%y = ca * sb * cg + sa * cb * sg
+    eul_2_un_quat_sk%z = ca * cb * sg - sa * sb * cg
+
+END FUNCTION eul_2_un_quat_sk
+
+!------------------------------------------------------------------------------
+! FUNCTION: check_un_quat_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Check whether it is a uni quaternion
+!
+!> @param[in] quat Quaternion
+!> @return check_un_quat_sk True or false
+!------------------------------------------------------------------------------  
+FUNCTION check_un_quat_sk (quat)
+
+    TYPE(suaternion) :: quat
+    LOGICAL :: check_un_quat_sk
+
+    REAL(KIND=sk) :: rslt
+
+    rslt = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
+
+    IF (rslt-1_rk <= num_zero) THEN
+        check_un_quat_sk = .TRUE.
+    ELSE
+        check_un_quat_sk = .FALSE.
+    END IF
+
+END FUNCTION check_un_quat_sk
+
+!------------------------------------------------------------------------------
+! FUNCTION: quat_norm_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Quaternion norm
+!
+!> @param[in] quat Quaternion
+!> @return quat_norm_sk Norm of the quaternion
+!------------------------------------------------------------------------------  
+FUNCTION quat_norm_sk (quat)
+
+    TYPE(suaternion) :: quat
+    REAL(KIND=sk) :: quat_norm_sk
+
+    quat_norm_sk = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
+
+END FUNCTION quat_norm_sk
+
+!------------------------------------------------------------------------------
+! FUNCTION: q_add_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Add a scalar to a quaternion. Also works with negative scalars.
+!
+!> @param[in] q1 Quaternion
+!> @param[in] scalar Scalar
+!> @return q_add_sk Result of the addition
+!------------------------------------------------------------------------------  
+FUNCTION q_add_sk(q1, scalar)
+
+    TYPE(suaternion) :: q1, q_add_sk
+    REAL(KIND=sk) :: scalar
+
+    q_add_sk%w = q1%w + scalar
+    q_add_sk%x = q1%x + scalar
+    q_add_sk%y = q1%y + scalar
+    q_add_sk%z = q1%z + scalar
+
+END FUNCTION q_add_sk
+
+!------------------------------------------------------------------------------
+! FUNCTION: q_mult_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Quaternion multiplication. Element wise, not to be confused with quat_prod!
+!
+!> @param[in] q1 Quaternion
+!> @param[in] scalar Scalar
+!> @return q_add Result of the multiplication
+!------------------------------------------------------------------------------  
+FUNCTION q_mult_sk (q1, scalar)
+
+    TYPE(suaternion) :: q1, q_mult_sk
+    REAL(KIND=sk) :: scalar
+
+    q_mult_sk%w = q1%w * scalar
+    q_mult_sk%x = q1%x * scalar
+    q_mult_sk%y = q1%y * scalar
+    q_mult_sk%z = q1%z * scalar
+
+END FUNCTION q_mult_sk
+
+!------------------------------------------------------------------------------
+! FUNCTION: q_dvd_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Quaternion division. Element wise, not to be confused with quat_prod!
+!
+!> @param[in] q1 Quaternion
+!> @param[in] scalar Scalar
+!> @return q_add Result of the division
+!------------------------------------------------------------------------------ 
+FUNCTION q_dvd_sk (q1, scalar)
+
+    TYPE(suaternion) :: q1, q_dvd_sk
+    REAL(KIND=sk) :: scalar
+    
+    q_dvd_sk%w = q1%w / scalar
+    q_dvd_sk%x = q1%x / scalar
+    q_dvd_sk%y = q1%y / scalar
+    q_dvd_sk%z = q1%z / scalar
+
+END FUNCTION q_dvd_sk
+
+!------------------------------------------------------------------------------
+! FUNCTION: quat_prod_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Quaternion division. Element wise, not to be confused with quat_prod_sk!
+!
+!> @param[in] q1 Quaternion
+!> @param[in] q2 Quaternion
+!> @return quat_prod_sk Result of the quaternion multiplication
+!------------------------------------------------------------------------------ 
+FUNCTION quat_prod_sk (q1, q2)
+
+    TYPE(suaternion) :: q1, q2, quat_prod_sk
+
+    quat_prod_sk%w = q1%w*q2%w-q1%x*q2%x-q1%y*q2%y-q1%z*q2%z
+    quat_prod_sk%x = q1%w*q2%x+q1%x*q2%w+q1%y*q2%z-q1%z*q2%y
+    quat_prod_sk%y = q1%w*q2%y-q1%x*q2%z+q1%y*q2%w+q1%z*q2%x
+    quat_prod_sk%z = q1%w*q2%z+q1%x*q2%y-q1%y*q2%x+q1%z*q2%w
+
+END FUNCTION quat_prod_sk
+
+!------------------------------------------------------------------------------
+! FUNCTION: conjugate_quat_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Conjugate quaternion.
+!
+!> @param[in] quat Quaternion
+!> @return conjugate_quat_sk Conjugate quaternion
+!------------------------------------------------------------------------------ 
+FUNCTION conjugate_quat_sk(quat)
+
+    TYPE(suaternion) :: quat, conjugate_quat_sk
+
+    conjugate_quat_sk%w =   quat%w
+    conjugate_quat_sk%x = - quat%x
+    conjugate_quat_sk%y = - quat%y
+    conjugate_quat_sk%z = - quat%z
+
+END FUNCTION conjugate_quat_sk
+
+!------------------------------------------------------------------------------
+! FUNCTION: rotate_point_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Rotate a point with quaternions. Takes a unit quaternion as input
+!
+!> @param[in] quat Quaternion
+!> @param[in] point Point to rotate with quaternion.
+!> @return rotate_point_sk Rotated point.
+!------------------------------------------------------------------------------
+FUNCTION rotate_point_sk(quat, point)
+
+    TYPE(suaternion) :: quat
+    REAL(KIND=sk), DIMENSION(3) :: point, rotate_point_sk
+
+    TYPE(suaternion) :: pnt, rtt_pnt
+
+    pnt%w = 0._rk
+    pnt%x = point(1)
+    pnt%y = point(2)
+    pnt%z = point(3)
+
+    rtt_pnt = quat_prod_sk(quat_prod_sk(quat, pnt), conjugate_quat_sk(quat))
+
+    rotate_point_sk(1) = rtt_pnt%x
+    rotate_point_sk(2) = rtt_pnt%y
+    rotate_point_sk(3) = rtt_pnt%z
+
+END FUNCTION rotate_point_sk
+
+
+!------------------------------------------------------------------------------
+! FUNCTION: quat_2_rot_mat_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Quaternion to rotation matrix.
+!
+!> @param[in] q Quaternion
+!> @return quat_2_rot_mat_sk Rotation matrix
+!------------------------------------------------------------------------------
+FUNCTION quat_2_rot_mat_sk(q)
+
+    TYPE(suaternion) :: q
+    REAL(KIND=rk), DIMENSION(3,3) :: quat_2_rot_mat_sk
+
+    quat_2_rot_mat_sk(1,:) = [ q%w**2 + q%x**2 - q%y**2 - q%z**2  , &
+        2._rk*q%x*q%y - 2._rk*q%w*q%z , 2._rk*q%x*q%z - 2._rk*q%w*q%y  ]
+    quat_2_rot_mat_sk(2,:) = [ 2._rk*q%x*q%y + 2._rk*q%w*q%z , &
+        q%w**2 - q%x**2 + q%y**2 + - q%z**2 , 2._rk*q%y*q%z - 2._rk*q%w*q%x ]
+    quat_2_rot_mat_sk(3,:) = [ 2._rk*q%x*q%z - 2._rk*q%w*q%y , &
+        2._rk*q%y*q%z + 2._rk*q%w*q%x , q%w**2 - q%x**2 - q%y**2 + q%z**2   ]
+
+END FUNCTION quat_2_rot_mat_sk
+
+
+!------------------------------------------------------------------------------
+! FUNCTION: crpr_rk
 !------------------------------------------------------------------------------  
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
@@ -658,16 +984,118 @@ END FUNCTION quat_2_rot_mat
 !
 !> @param[in] a Vector
 !> @param[in] b Vector
-!> @return crpr Cross product
+!> @return crpr_rk Cross product
 !------------------------------------------------------------------------------
-FUNCTION crpr(a, b)
+FUNCTION crpr_rk(a, b)
 
-    REAL(KIND=rk), DIMENSION(3) :: crpr,a,b
+    REAL(KIND=rk), DIMENSION(3) :: crpr_rk,a,b
 
-    crpr(1) = a(2) * b(3) - a(3) * b(2)
-    crpr(2) = a(3) * b(1) - a(1) * b(3)
-    crpr(3) = a(1) * b(2) - a(2) * b(1)
+    crpr_rk(1) = a(2) * b(3) - a(3) * b(2)
+    crpr_rk(2) = a(3) * b(1) - a(1) * b(3)
+    crpr_rk(3) = a(1) * b(2) - a(2) * b(1)
 
-END FUNCTION crpr
+END FUNCTION crpr_rk
+
+!------------------------------------------------------------------------------
+! FUNCTION: crpr_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Cross product of two vectors
+!
+!> @param[in] a Vector
+!> @param[in] b Vector
+!> @return crpr_sk Cross product
+!------------------------------------------------------------------------------
+FUNCTION crpr_sk(a, b)
+
+    REAL(KIND=sk), DIMENSION(3) :: crpr_sk,a,b
+
+    crpr_sk(1) = a(2) * b(3) - a(3) * b(2)
+    crpr_sk(2) = a(3) * b(1) - a(1) * b(3)
+    crpr_sk(3) = a(1) * b(2) - a(2) * b(1)
+
+END FUNCTION crpr_sk
+
+!------------------------------------------------------------------------------
+! FUNCTION: dist_pnt_pln_by_pnts_rk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Calculates the distance of a point to a plane, given by three points.
+!> https://www.mathepower.com/ebenengleichungen.php :-)
+!
+!> @param[in] pp1 Point 1 of the plane
+!> @param[in] pp2 Point 2 of the plane
+!> @param[in] pp3 Point 3 of the plane
+!> @param[in] p Point
+!> @return[out] di Distance
+!------------------------------------------------------------------------------  
+FUNCTION dist_pnt_pln_by_pnts_rk(pp1, pp2, pp3, p) Result(di)
+
+REAL(KIND=rk), dimension(3), Intent(IN) :: pp1, pp2, pp3, p
+REAL(KIND=rk), dimension(3) :: nn, unitv 
+REAL(KIND=rk):: di, magni
+
+!------------------------------------------------------------------------------
+! The normal to the plane
+!------------------------------------------------------------------------------
+nn = crpr_rk(pp1-pp3, pp1-pp2)
+
+!------------------------------------------------------------------------------
+! Magnitude of the normal to the plane
+!------------------------------------------------------------------------------
+magni = SQRT(DOT_PRODUCT(nn, nn))
+
+!------------------------------------------------------------------------------
+! Unit vector
+!------------------------------------------------------------------------------
+unitv = nn / magni
+
+di = DOT_PRODUCT(unitv, [p(1)-pp1(1), p(2)-pp1(2), p(3)-pp1(3)])
+
+END FUNCTION dist_pnt_pln_by_pnts_rk
+
+!------------------------------------------------------------------------------
+! FUNCTION: dist_pnt_pln_by_pnts_sk
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Calculates the distance of a point to a plane, given by three points.
+!> https://www.mathepower.com/ebenengleichungen.php :-)
+!
+!> @param[in] pp1 Point 1 of the plane
+!> @param[in] pp2 Point 2 of the plane
+!> @param[in] pp3 Point 3 of the plane
+!> @param[in] p Point
+!> @return[out] di Distance
+!------------------------------------------------------------------------------  
+FUNCTION dist_pnt_pln_by_pnts_sk(pp1, pp2, pp3, p) Result(di)
+
+REAL(KIND=sk), dimension(3), Intent(IN) :: pp1, pp2, pp3, p
+REAL(KIND=sk), dimension(3) :: nn, unitv 
+REAL(KIND=sk):: di, magni
+
+!------------------------------------------------------------------------------
+! The normal to the plane
+!------------------------------------------------------------------------------
+nn = crpr_sk(pp1-pp3, pp1-pp2)
+
+!------------------------------------------------------------------------------
+! Magnitude of the normal to the plane
+!------------------------------------------------------------------------------
+magni = SQRT(DOT_PRODUCT(nn, nn))
+
+!------------------------------------------------------------------------------
+! Unit vector
+!------------------------------------------------------------------------------
+unitv = nn / magni
+
+di = DOT_PRODUCT(unitv, [p(1)-pp1(1), p(2)-pp1(2), p(3)-pp1(3)])
+
+END FUNCTION dist_pnt_pln_by_pnts_sk
 
 END MODULE math

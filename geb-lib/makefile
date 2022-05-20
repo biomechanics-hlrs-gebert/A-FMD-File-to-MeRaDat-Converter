@@ -10,6 +10,7 @@
 long_name="Centralized Sources"
 # -----------------------------------------------------------------------------
 # Check for environment
+# -----------------------------------------------------------------------------
 check-env:
 ifeq ($(SYS_ENV),)
 	@echo "-----------------------------------------------"
@@ -21,26 +22,32 @@ else
 	@echo "-----------------------------------------------"
 	$(MAKE) all
 endif
+#
 # ------------------------------------------------------------------------------
 # Build path
-subtree_build_path = $(CURDIR)
-export subtree_build_path
+build_path = $(CURDIR)
+export build_path
 #
 # ------------------------------------------------------------------------------
 # Directories
-mod_dir   = $(subtree_build_path)/mod/
-obj_dir   = $(subtree_build_path)/obj/
-c-obj_dir   = $(subtree_build_path)/obj/c_objects/
-c-src_dir = $(subtree_build_path)/c-src/
-f-src_dir = $(subtree_build_path)/f-src/
-ext_f-src = $(subtree_build_path)/f-src/ext-src_
+st_mod_dir= $(build_path)/mod/
+mod_dir   = $(build_path)/mod/
+obj_dir   = $(build_path)/obj/
+c-obj_dir = $(build_path)/obj/c_objects/
+c-src_dir = $(build_path)/c-src/
+f-src_dir = $(build_path)/f-src/
+ext_f-src = $(build_path)/f-src/ext-src_
 #
+# -----------------------------------------------------------------------------
 # Directory for documentation
-doc_dir  = $(subtree_build_path)/doc/
-html_dir = $(subtree_build_path)/html/
-tex_dir  = $(subtree_build_path)/latex/
+# -----------------------------------------------------------------------------
+doc_dir  = $(build_path)/doc/
+html_dir = $(build_path)/html/
+tex_dir  = $(build_path)/latex/
+#
 # ------------------------------------------------------------------------------
 # File extensions and suffixes
+# -----------------------------------------------------------------------------
 mod_ext = .mod
 obj_ext = .o
 sho_ext = .so
@@ -48,46 +55,14 @@ f90_ext = .f90
 c_ext = .c
 # ------------------------------------------------------------------------------
 clean_cmd = rm -f
+#
 # ------------------------------------------------------------------------------
-# Compilers
-f90_compiler = "mpif90"
-export f90_compiler
-c_compiler = "gcc"
-export c_compiler
-# ------------------------------------------------------------------------------
-# Programming Environment - gnu, LLVM
-PE = gnu
-# ------------------------------------------------------------------------------
-# Compile mode - dev, prod - Defined in environment.sh
-# compile_MODE = dev
-# ------------------------------------------------------------------------------
-# Compile flags GNU Compiler
-# The subtree structure requires two directories containing modules.
-# In this case, the program root/mod directory addressed by the -J 
-# http://www.hpc.icc.ru/documentation/intel/f_ug1/fced_mod.htm
-ifeq ($(PE),gnu)
-	f90_std_IJ     = -J$(mod_dir) -I$(subtree_build_path)
-	f90_dev_flags  = 	-fdefault-integer-8 -fdefault-real-8 \
-						-finstrument-functions -ggdb -o -O3 \
-						-fbacktrace -fbounds-check \
-						-Wno-conversion -Wall
-	f90_prod_flags = 	-fdefault-integer-8 -fdefault-real-8 \
-						-finstrument-functions -O3 -fbounds-check
-	c_std_I        = -I$(subtree_build_path)
-	c_dev_flags    =        -g -O3
-	c_prod_flags   =        -O3
-        
-	ifeq ($(compile_MODE),prod)
-		c_flags_f90 = $(f90_std_IJ) $(f90_prod_flags)
-		c_flags_c   = $(c_std_I) $(c_prod_flags)
-	else
-		c_flags_f90 = $(f90_std_IJ) $(f90_dev_flags)
-		c_flags_c   = $(c_std_I) $(c_dev_flags)
-	endif
-endif
+# Inlcude build options
+include make.flags
+#
 # ------------------------------------------------------------------------------
 # Generate objects
-#
+# -----------------------------------------------------------------------------
 f-objects = $(obj_dir)mod_global_std$(obj_ext)\
 			$(obj_dir)mod_strings$(obj_ext)\
 			$(obj_dir)mod_math$(obj_ext)\
@@ -95,16 +70,19 @@ f-objects = $(obj_dir)mod_global_std$(obj_ext)\
 			$(obj_dir)mod_user_interaction$(obj_ext)\
 			$(obj_dir)mod_meta$(obj_ext)\
 			$(obj_dir)mod_vtk_raw$(obj_ext)\
-			$(obj_dir)mod_formatted_plain$(obj_ext)
+			$(obj_dir)mod_formatted_plain$(obj_ext)\
+			$(obj_dir)mod_image_manipulation$(obj_ext)
 
 c-objects = $(c-obj_dir)mod_meta$(obj_ext)
 
 # ------------------------------------------------------------------------------
 # Begin Building
+# -----------------------------------------------------------------------------
 all: $(f-objects) $(c-objects)
 
 # ------------------------------------------------------------------------------
 # Fortran Standards Module
+# -----------------------------------------------------------------------------
 $(obj_dir)mod_global_std$(obj_ext):$(f-src_dir)mod_global_std$(f90_ext)
 	@echo "----- Compiling " $(f-src_dir)mod_global_std$(f90_ext) "-----"
 	$(f90_compiler) $(c_flags_f90) -c $(f-src_dir)mod_global_std$(f90_ext) -o $@
@@ -112,6 +90,7 @@ $(obj_dir)mod_global_std$(obj_ext):$(f-src_dir)mod_global_std$(f90_ext)
 
 # ------------------------------------------------------------------------------
 # Fortran Mechanical Module
+# -----------------------------------------------------------------------------
 $(obj_dir)mod_mechanical$(obj_ext):$(mod_dir)global_std$(mod_ext)	$(f-src_dir)mod_mechanical$(f90_ext)
 	@echo "----- Compiling " $(f-src_dir)mod_mechanical$(f90_ext) "-----"
 	$(f90_compiler) $(c_flags_f90) -c $(f-src_dir)mod_mechanical$(f90_ext) -o $@
@@ -119,6 +98,7 @@ $(obj_dir)mod_mechanical$(obj_ext):$(mod_dir)global_std$(mod_ext)	$(f-src_dir)mo
 
 # ------------------------------------------------------------------------------
 # Fortran External source to parse input
+# -----------------------------------------------------------------------------
 $(obj_dir)mod_strings$(obj_ext):$(mod_dir)global_std$(mod_ext)	$(ext_f-src)strings$(f90_ext)
 	@echo "----- Compiling " $(ext_f-src)strings$(f90_ext) "-----"
 	$(f90_compiler) $(c_flags_f90) -c $(ext_f-src)strings$(f90_ext) -o $@
@@ -135,6 +115,7 @@ $(obj_dir)mod_math$(obj_ext):$(mod_dir)global_std$(mod_ext)	\
 	
 # -----------------------------------------------------------------------------
 # Fortran Module for User Interaction
+# -----------------------------------------------------------------------------
 $(obj_dir)mod_user_interaction$(obj_ext):$(mod_dir)global_std$(mod_ext) $(mod_dir)strings$(mod_ext) \
 									$(f-src_dir)mod_user_interaction$(f90_ext)
 	@echo "----- Compiling " $(f-src_dir)mod_user_interaction$(f90_ext) "-----"
@@ -143,6 +124,7 @@ $(obj_dir)mod_user_interaction$(obj_ext):$(mod_dir)global_std$(mod_ext) $(mod_di
 
 # -----------------------------------------------------------------------------
 # Fortran Meta Module 
+# -----------------------------------------------------------------------------
 $(obj_dir)mod_meta$(obj_ext):$(mod_dir)strings$(mod_ext) $(mod_dir)user_interaction$(mod_ext) \
 							$(f-src_dir)mod_meta$(f90_ext)
 	@echo "----- Compiling " $(f-src_dir)mod_meta$(f90_ext) "-----"
@@ -151,6 +133,7 @@ $(obj_dir)mod_meta$(obj_ext):$(mod_dir)strings$(mod_ext) $(mod_dir)user_interact
 
 # -----------------------------------------------------------------------------
 # Fortran Formatted Plain Module
+# -----------------------------------------------------------------------------
 $(obj_dir)mod_formatted_plain$(obj_ext):$(mod_dir)global_std$(mod_ext) $(mod_dir)math$(mod_ext)\
 										$(f-src_dir)mod_formatted_plain$(f90_ext)
 	@echo "----- Compiling " $(f-src_dir)mod_formatted_plain$(f90_ext) "-----"
@@ -159,6 +142,7 @@ $(obj_dir)mod_formatted_plain$(obj_ext):$(mod_dir)global_std$(mod_ext) $(mod_dir
 
 # ------------------------------------------------------------------------------
 # Fortran Module vtk structured points and raw data
+# -----------------------------------------------------------------------------
 $(obj_dir)mod_vtk_raw$(obj_ext):$(mod_dir)global_std$(mod_ext) \
 								$(mod_dir)user_interaction$(mod_ext) \
 								$(f-src_dir)mod_vtk_raw$(f90_ext)
@@ -166,8 +150,18 @@ $(obj_dir)mod_vtk_raw$(obj_ext):$(mod_dir)global_std$(mod_ext) \
 	$(f90_compiler) $(c_flags_f90) -c $(f-src_dir)mod_vtk_raw$(f90_ext) -o $@
 	@echo
 
+# ------------------------------------------------------------------------------
+# Fortran Module vtk structured points and raw data
+# -----------------------------------------------------------------------------
+$(obj_dir)mod_image_manipulation$(obj_ext):$(mod_dir)global_std$(mod_ext) \
+								$(f-src_dir)mod_image_manipulation$(f90_ext)
+	@echo "----- Compiling " $(f-src_dir)mod_image_manipulation$(f90_ext) " -----"
+	$(f90_compiler) $(c_flags_f90) -c $(f-src_dir)mod_image_manipulation$(f90_ext) -o $@
+	@echo
+
 # -----------------------------------------------------------------------------
 # C Meta Module 
+# -----------------------------------------------------------------------------
 $(c-obj_dir)mod_meta$(obj_ext):$(c-src_dir)mod_meta$(c_ext)
 	@echo "----- Compiling " $(c-src_dir)mod_meta$(c_ext) "-----"
 	$(c_compiler) $(c_flags_c) -c $(c-src_dir)mod_meta$(c_ext) -o $@

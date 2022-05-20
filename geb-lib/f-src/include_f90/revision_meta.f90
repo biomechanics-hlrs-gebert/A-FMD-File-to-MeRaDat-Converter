@@ -1,2 +1,2 @@
 CHARACTER(LEN=scl), PARAMETER :: longname = 'File to Meta Format Converter'
-CHARACTER(LEN=scl), PARAMETER :: hash = '8f2dc21ca16d8eaa7596ba15ab2bbe98b1797935'
+CHARACTER(LEN=scl), PARAMETER :: hash = '6324c3d102c481524bc7b160cb1b06650fd805f8'

@@ -140,7 +140,9 @@ CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
 datarep = 'NATIVE'
 
-IF(PRESENT(dtrep)) datarep = TRIM(dtrep)
+IF(PRESENT(dtrep)) THEN
+   IF (dtrep /= "") datarep = TRIM(dtrep)
+END IF 
 
 ! Required to open files
 CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
@@ -198,7 +200,9 @@ CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
 datarep = 'NATIVE'
 
-IF(PRESENT(dtrep)) datarep = TRIM(dtrep)
+IF(PRESENT(dtrep)) THEN
+   IF (dtrep /= "") datarep = TRIM(dtrep)
+END IF 
 
 ! Required to open files
 CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
@@ -281,7 +285,7 @@ END SUBROUTINE uik2_to_ik2
 !> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
 !
 !> @brief
-!> Convert unsigned int2 to int 4 data. @Datarepresenation: 
+!> Convert unsigned int2 to int 2 data. @Datarepresenation: 
 !> NATIVE=LittleEndian on file system, EXTERNAL32 --> BigEndian. 
 !> Please check and test if you need this feature!! Depends on Hardware.
 !
@@ -356,7 +360,9 @@ CHARACTER(LEN=scl) :: datarep
 
 datarep = 'NATIVE'
 
-IF(PRESENT(dtrep)) datarep = TRIM(dtrep)
+IF(PRESENT(dtrep)) THEN
+   IF (dtrep /= "") datarep = TRIM(dtrep)
+END IF 
 
 ! Required to open files
 CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
@@ -415,7 +421,9 @@ CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
 datarep = 'NATIVE'
 
-IF(PRESENT(dtrep)) datarep = TRIM(dtrep)
+IF(PRESENT(dtrep)) THEN
+   IF (dtrep /= "") datarep = TRIM(dtrep)
+END IF 
 
 ! Required to open files
 CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
@@ -478,7 +486,9 @@ CHARACTER(LEN=scl) :: datarep = 'NATIVE'
 
 datarep = 'NATIVE'
 
-IF(PRESENT(dtrep)) datarep = TRIM(dtrep)
+IF(PRESENT(dtrep)) THEN
+   IF (dtrep /= "") datarep = TRIM(dtrep)
+END IF 
 
 CALL MPI_FILE_OPEN(MPI_COMM_WORLD, TRIM(filename), MPI_MODE_WRONLY+MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
 
@@ -534,7 +544,9 @@ CHARACTER(LEN=scl) :: datarep = 'NATIVE'
 
 datarep = 'NATIVE'
 
-IF(PRESENT(dtrep)) datarep = TRIM(dtrep)
+IF(PRESENT(dtrep)) THEN
+   IF (dtrep /= "") datarep = TRIM(dtrep)
+END IF 
 
 CALL MPI_FILE_OPEN(MPI_COMM_WORLD, TRIM(filename), &
    MPI_MODE_WRONLY+MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
@@ -922,8 +934,14 @@ USE ISO_FORTRAN_ENV
 USE global_std
 USE strings
 USE user_interaction
+USE raw_binary
 
 IMPLICIT NONE
+
+INTERFACE write_ser_vtk
+   MODULE PROCEDURE write_ser_vtk_ik2
+   MODULE PROCEDURE write_ser_vtk_ik4
+END INTERFACE write_ser_vtk
 
 CONTAINS
 
@@ -1099,5 +1117,75 @@ END DO
 CLOSE(fh)
 
 END SUBROUTINE read_vtk_meta
+
+!------------------------------------------------------------------------------
+! SUBROUTINE: write_ser_vtk_ik2
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert, gebert@hlrs.de, HLRS/NUM
+!
+!> @brief
+!> Basically a simple wrapper
+!
+!> @param[in] filename File name
+!> @param[in] type Data type contained in binary blob
+!> @param[in] spcng Physical distance between two voxels (mm)
+!> @param[in] dims Voxels per direction
+!> @param[in] origin Physical (mm) origin
+!> @param[in] array Data
+!------------------------------------------------------------------------------
+SUBROUTINE write_ser_vtk_ik2(filename, type, spcng, dims, origin, array)
+
+CHARACTER(len=*)  , INTENT(IN)  :: filename, type
+INTEGER  (KIND=ik), DIMENSION(3) , INTENT(IN) :: dims
+REAL     (KIND=rk), DIMENSION(3) , INTENT(IN) :: origin
+REAL     (KIND=rk), DIMENSION(3) , INTENT(IN) :: spcng
+INTEGER  (KIND=INT16), DIMENSION(:,:,:), INTENT(IN) :: array
+
+INTEGER  (KIND=ik) :: fh_temp
+
+fh_temp = give_new_unit()
+
+CALL write_vtk_struct_points_header(fh_temp, TRIM(filename), TRIM(type), spcng, origin, dims)
+
+CALL ser_write_raw(fh_temp, TRIM(filename), array, 'BIG_ENDIAN')
+
+CALL write_vtk_struct_points_footer(fh_temp, TRIM(filename))
+
+END SUBROUTINE write_ser_vtk_ik2
+
+!------------------------------------------------------------------------------
+! SUBROUTINE: write_ser_vtk_ik4
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert, gebert@hlrs.de, HLRS/NUM
+!
+!> @brief
+!> Basically a simple wrapper
+!
+!> @param[in] filename File name
+!> @param[in] type Data type contained in binary blob
+!> @param[in] spcng Physical distance between two voxels (mm)
+!> @param[in] dims Voxels per direction
+!> @param[in] origin Physical (mm) origin
+!> @param[in] array Data
+!------------------------------------------------------------------------------
+SUBROUTINE write_ser_vtk_ik4(filename, type, spcng, dims, origin, array)
+
+CHARACTER(len=*)  , INTENT(IN)  :: filename, type
+INTEGER  (KIND=ik), DIMENSION(3) , INTENT(IN) :: dims
+REAL     (KIND=rk), DIMENSION(3) , INTENT(IN) :: origin
+REAL     (KIND=rk), DIMENSION(3) , INTENT(IN) :: spcng
+INTEGER  (KIND=INT32), DIMENSION(:,:,:), INTENT(IN) :: array
+
+INTEGER  (KIND=ik) :: fh_temp
+
+fh_temp = give_new_unit()
+
+CALL write_vtk_struct_points_header(fh_temp, TRIM(filename), TRIM(type), spcng, origin, dims)
+
+CALL ser_write_raw(fh_temp, TRIM(filename), array, 'BIG_ENDIAN')
+
+CALL write_vtk_struct_points_footer(fh_temp, TRIM(filename))
+
+END SUBROUTINE write_ser_vtk_ik4
 
 END MODULE vtk_meta_data
