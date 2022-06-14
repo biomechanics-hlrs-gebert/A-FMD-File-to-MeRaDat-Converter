@@ -14,20 +14,20 @@ USE strings
 
 IMPLICIT NONE
 
-REAL(KIND=rk), PARAMETER :: num_zero   = 1.E-9
-REAL(KIND=rk), PARAMETER :: sq2        = sqrt(2._rk)
-REAL(KIND=rk), PARAMETER :: pi         = 4.D0*DATAN(1.D0)       !acos(-1._rk)
-REAL(KIND=rk), PARAMETER :: pihalf     = 4.D0*DATAN(1.D0)/2._rk !acos(-1._rk)
-REAL(KIND=rk), PARAMETER :: inv180     = 1._rk/180._rk
-REAL(KIND=rk), PARAMETER :: pi_div_180 = acos(-1._rk)/180._rk   ! * deg = rad
-REAL(KIND=rk), PARAMETER :: div_180_pi = 180._rk/acos(-1._rk)   ! * rad = deg
+REAL(rk), PARAMETER :: num_zero   = 1.E-9
+REAL(rk), PARAMETER :: sq2        = sqrt(2._rk)
+REAL(rk), PARAMETER :: pi         = 4.D0*DATAN(1.D0)       !acos(-1._rk)
+REAL(rk), PARAMETER :: pihalf     = 4.D0*DATAN(1.D0)/2._rk !acos(-1._rk)
+REAL(rk), PARAMETER :: inv180     = 1._rk/180._rk
+REAL(rk), PARAMETER :: pi_div_180 = acos(-1._rk)/180._rk   ! * deg = rad
+REAL(rk), PARAMETER :: div_180_pi = 180._rk/acos(-1._rk)   ! * rad = deg
 
 !-- Higher dimensional numbers
 TYPE duaternion
-   REAL (KIND=rk) :: w,x,y,z
+   REAL (rk) :: w,x,y,z
 END TYPE duaternion
 TYPE suaternion
-   REAL (KIND=rk) :: w,x,y,z
+   REAL (rk) :: w,x,y,z
 END TYPE suaternion
 INTERFACE zero_thres
    MODULE PROCEDURE zerothres_num
@@ -36,65 +36,6 @@ INTERFACE zero_thres
    MODULE PROCEDURE zerothres_ThD
 END INTERFACE zero_thres
 
-! INTERFACE eul_2_un_quat 
-!     MODULE PROCEDURE eul_2_un_quat_rk
-!     MODULE PROCEDURE eul_2_un_quat_sk
-! END INTERFACE eul_2_un_quat
-
-! INTERFACE check_un_quat
-!     MODULE PROCEDURE check_un_quat_rk
-!     MODULE PROCEDURE check_un_quat_sk
-! END INTERFACE check_un_quat
-
-! INTERFACE quat_norm
-!     MODULE PROCEDURE quat_norm_rk
-!     MODULE PROCEDURE quat_norm_sk
-! END INTERFACE quat_norm
-
-! INTERFACE q_add
-!     MODULE PROCEDURE q_add_rk
-!     MODULE PROCEDURE q_add_sk
-! END INTERFACE q_add
-
-! INTERFACE q_mult
-!     MODULE PROCEDURE q_mult_rk
-!     MODULE PROCEDURE q_mult_sk
-! END INTERFACE q_mult
-
-! INTERFACE q_dvd
-!     MODULE PROCEDURE q_dvd_rk
-!     MODULE PROCEDURE q_dvd_sk
-! END INTERFACE q_dvd
-
-! INTERFACE quat_prod
-!     MODULE PROCEDURE quat_prod_rk
-!     MODULE PROCEDURE quat_prod_sk
-! END INTERFACE quat_prod
-
-! INTERFACE conjugate_quat
-!     MODULE PROCEDURE conjugate_quat_rk
-!     MODULE PROCEDURE conjugate_quat_sk
-! END INTERFACE conjugate_quat
-
-! INTERFACE rotate_point
-!     MODULE PROCEDURE rotate_point_rk
-!     MODULE PROCEDURE rotate_point_sk
-! END INTERFACE rotate_point
-
-! INTERFACE quat_2_rot_mat
-!     MODULE PROCEDURE quat_2_rot_mat_rk
-!     MODULE PROCEDURE quat_2_rot_mat_sk
-! END INTERFACE quat_2_rot_mat
-
-! INTERFACE crpr
-!     MODULE PROCEDURE crpr_rk
-!     MODULE PROCEDURE crpr_sk
-! END INTERFACE crpr
-
-! INTERFACE dist_pnt_pln_by_pnts
-!     MODULE PROCEDURE dist_pnt_pln_by_pnts_rk
-!     MODULE PROCEDURE dist_pnt_pln_by_pnts_sk
-! END INTERFACE dist_pnt_pln_by_pnts
 
 CONTAINS
 
@@ -112,31 +53,31 @@ CONTAINS
 !------------------------------------------------------------------------------
 SUBROUTINE transpose_mat (tensor_in, pos_in, tensor_out)
 
-     REAL(KIND=rk), DIMENSION(6,6), INTENT(IN)  :: tensor_in
-     REAL(KIND=rk), DIMENSION(3)  , INTENT(IN)  :: pos_in
-     REAL(KIND=rk), DIMENSION(6,6), INTENT(OUT) :: tensor_out
+REAL(rk), DIMENSION(6,6), INTENT(IN)  :: tensor_in
+REAL(rk), DIMENSION(3)  , INTENT(IN)  :: pos_in
+REAL(rk), DIMENSION(6,6), INTENT(OUT) :: tensor_out
 
-     REAL(KIND=rk)                 :: alpha, phi, eta
-     REAL(KIND=rk), DIMENSION(3)   :: n
-     REAL(KIND=rk), DIMENSION(3,3) :: aa
-     REAL(KIND=rk), DIMENSION(6,6) :: BB
+REAL(rk)                 :: alpha, phi, eta
+REAL(rk), DIMENSION(3)   :: n
+REAL(rk), DIMENSION(3,3) :: aa
+REAL(rk), DIMENSION(6,6) :: BB
 
-     !------------------------------------------------------------------------------
-     !  Degrees as input, radian as output to sin/cos
-     !------------------------------------------------------------------------------
-     alpha = REAL(pos_in(1)) * pi / 180._rk
-     phi   = REAL(pos_in(2)) * pi / 180._rk
-     eta   = REAL(pos_in(3)) * pi / 180._rk
+!------------------------------------------------------------------------------
+!  Degrees as input, radian as output to sin/cos
+!------------------------------------------------------------------------------
+alpha = REAL(pos_in(1)) * pi / 180._rk
+phi   = REAL(pos_in(2)) * pi / 180._rk
+eta   = REAL(pos_in(3)) * pi / 180._rk
 
-     n = [ COS(phi)*SIN(eta), SIN(phi)*SIN(eta), COS(eta) ]
+n = [ COS(phi)*SIN(eta), SIN(phi)*SIN(eta), COS(eta) ]
 
-     n = n / SQRT(SUM(n*n))
+n = n / SQRT(SUM(n*n))
 
-     aa = rot_alg(n, alpha)
+aa = rot_alg(n, alpha)
 
-     BB = tra_R6(aa)
+BB = tra_R6(aa)
 
-     tensor_out = MATMUL(MATMUL(TRANSPOSE(BB), tensor_in), BB)
+tensor_out = MATMUL(MATMUL(TRANSPOSE(BB), tensor_in), BB)
 
 END SUBROUTINE transpose_mat
 
@@ -150,12 +91,12 @@ END SUBROUTINE transpose_mat
 !------------------------------------------------------------------------------  
 Function rot_x(angle) Result(aa)
 
-    Real(kind=rk), intent(in) :: angle
-    Real(kind=rk), Dimension(3,3) :: aa
+Real(kind=rk), intent(in) :: angle
+Real(kind=rk), Dimension(3,3) :: aa
 
-    aa(1,:) = [ 1._rk ,   0._rk    ,   0._rk     ]
-    aa(2,:) = [ 0._rk , cos(angle) , -sin(angle) ]
-    aa(3,:) = [ 0._rk , sin(angle) ,  cos(angle) ]
+aa(1,:) = [ 1._rk ,   0._rk    ,   0._rk     ]
+aa(2,:) = [ 0._rk , cos(angle) , -sin(angle) ]
+aa(3,:) = [ 0._rk , sin(angle) ,  cos(angle) ]
 
 End Function rot_x
 
@@ -169,12 +110,12 @@ End Function rot_x
 !------------------------------------------------------------------------------  
 Function rot_y(angle) Result(aa)
 
-    Real(kind=rk), intent(in) :: angle
-    Real(kind=rk), Dimension(3,3) :: aa
+Real(kind=rk), intent(in) :: angle
+Real(kind=rk), Dimension(3,3) :: aa
 
-    aa(1,:) = [ cos(angle), 0._rk,  sin(angle) ]
-    aa(2,:) = [   0._rk   , 1._rk,   0._rk     ]
-    aa(3,:) = [-sin(angle), 0._rk,  cos(angle) ]
+aa(1,:) = [ cos(angle), 0._rk,  sin(angle) ]
+aa(2,:) = [   0._rk   , 1._rk,   0._rk     ]
+aa(3,:) = [-sin(angle), 0._rk,  cos(angle) ]
 
 End Function rot_y
 
@@ -188,12 +129,12 @@ End Function rot_y
 !------------------------------------------------------------------------------  
 Function rot_z(angle) Result(aa)
 
-    Real(kind=rk), intent(in) :: angle
-    Real(kind=rk), Dimension(3,3) :: aa
+Real(kind=rk), intent(in) :: angle
+Real(kind=rk), Dimension(3,3) :: aa
 
-    aa(1,:) = [ cos(angle), -sin(angle), 0._rk ]
-    aa(2,:) = [ sin(angle),  cos(angle), 0._rk ]
-    aa(3,:) = [   0._rk   ,   0._rk    , 1._rk ]
+aa(1,:) = [ cos(angle), -sin(angle), 0._rk ]
+aa(2,:) = [ sin(angle),  cos(angle), 0._rk ]
+aa(3,:) = [   0._rk   ,   0._rk    , 1._rk ]
 
 End Function rot_z
 
@@ -210,25 +151,25 @@ End Function rot_z
 !------------------------------------------------------------------------------  
 Function rot_alg(axis, angle) Result(rr)
 
-    real(kind=rk), dimension(3), Intent(In) :: axis
-    real(kind=rk)              , Intent(In) :: angle
-    real(kind=rk), dimension(3, 3) :: rr
+real(kind=rk), dimension(3), Intent(In) :: axis
+real(kind=rk)              , Intent(In) :: angle
+real(kind=rk), dimension(3, 3) :: rr
 
-    !** normalize rotation axis ***********************************************
-    !axis = axis / sqrt(sum(axis*axis))
+!** normalize rotation axis ***********************************************
+!axis = axis / sqrt(sum(axis*axis))
 
-    !** Setup transformation matrix *******************************************
-    rr(1,1) = cos(angle) + axis(1)*axis(1)* (1._8 - cos(angle))
-    rr(1,2) = axis(1)*axis(2)* (1._8 - cos(angle)) - axis(3) * sin(angle)
-    rr(1,3) = axis(1)*axis(3)* (1._8 - cos(angle)) + axis(2) * sin(angle)
+!** Setup transformation matrix *******************************************
+rr(1,1) = cos(angle) + axis(1)*axis(1)* (1._8 - cos(angle))
+rr(1,2) = axis(1)*axis(2)* (1._8 - cos(angle)) - axis(3) * sin(angle)
+rr(1,3) = axis(1)*axis(3)* (1._8 - cos(angle)) + axis(2) * sin(angle)
 
-    rr(2,1) = axis(2)*axis(1)* (1._8 - cos(angle)) + axis(3) * sin(angle)
-    rr(2,2) = cos(angle) + axis(2)*axis(2)* (1._8 - cos(angle))
-    rr(2,3) = axis(2)*axis(3)* (1._8 - cos(angle)) - axis(1) * sin(angle)
+rr(2,1) = axis(2)*axis(1)* (1._8 - cos(angle)) + axis(3) * sin(angle)
+rr(2,2) = cos(angle) + axis(2)*axis(2)* (1._8 - cos(angle))
+rr(2,3) = axis(2)*axis(3)* (1._8 - cos(angle)) - axis(1) * sin(angle)
 
-    rr(3,1) = axis(3)*axis(1)* (1._8 - cos(angle)) - axis(2) * sin(angle)
-    rr(3,2) = axis(3)*axis(2)* (1._8 - cos(angle)) + axis(1) * sin(angle)
-    rr(3,3) = cos(angle) + axis(3)*axis(3)* (1._8 - cos(angle))
+rr(3,1) = axis(3)*axis(1)* (1._8 - cos(angle)) - axis(2) * sin(angle)
+rr(3,2) = axis(3)*axis(2)* (1._8 - cos(angle)) + axis(1) * sin(angle)
+rr(3,3) = cos(angle) + axis(3)*axis(3)* (1._8 - cos(angle))
 
 End Function rot_alg
 
@@ -245,19 +186,19 @@ End Function rot_alg
 !------------------------------------------------------------------------------  
 Function tra_R6(aa) Result(BB)
 
-    Real(kind=rk), Dimension(3,3), intent(in) :: aa
-    Real(kind=rk), Dimension(6,6) :: BB
+Real(kind=rk), Dimension(3,3), intent(in) :: aa
+Real(kind=rk), Dimension(6,6) :: BB
 
-    BB(1,:) = [ aa(1,1)**2 , aa(1,2)**2 , aa(1,3)**2 , sq2*aa(1,1)*aa(1,2) , sq2*aa(1,1)*aa(1,3), sq2*aa(1,2)*aa(1,3) ]
-    BB(2,:) = [ aa(2,1)**2 , aa(2,2)**2 , aa(2,3)**2 , sq2*aa(2,1)*aa(2,2) , sq2*aa(2,1)*aa(2,3), sq2*aa(2,2)*aa(2,3) ]
-    BB(3,:) = [ aa(3,1)**2 , aa(3,2)**2 , aa(3,3)**2 , sq2*aa(3,1)*aa(3,2) , sq2*aa(3,1)*aa(3,3), sq2*aa(3,2)*aa(3,3) ]
+BB(1,:) = [ aa(1,1)**2 , aa(1,2)**2 , aa(1,3)**2 , sq2*aa(1,1)*aa(1,2) , sq2*aa(1,1)*aa(1,3), sq2*aa(1,2)*aa(1,3) ]
+BB(2,:) = [ aa(2,1)**2 , aa(2,2)**2 , aa(2,3)**2 , sq2*aa(2,1)*aa(2,2) , sq2*aa(2,1)*aa(2,3), sq2*aa(2,2)*aa(2,3) ]
+BB(3,:) = [ aa(3,1)**2 , aa(3,2)**2 , aa(3,3)**2 , sq2*aa(3,1)*aa(3,2) , sq2*aa(3,1)*aa(3,3), sq2*aa(3,2)*aa(3,3) ]
 
-    BB(4,:) = [ sq2*aa(2,1)*aa(1,1) , sq2*aa(2,2)*aa(1,2) , sq2*aa(2,3)*aa(1,3) , &
-        aa(2,1)*aa(1,2)+aa(2,2)*aa(1,1) , aa(2,1)*aa(1,3)+aa(2,3)*aa(1,1) , aa(2,2)*aa(1,3)+aa(2,3)*aa(1,2) ]
-    BB(5,:) = [ sq2*aa(1,1)*aa(3,1) , sq2*aa(1,2)*aa(3,2) , sq2*aa(1,3)*aa(3,3) ,  &
-        aa(1,1)*aa(3,2)+aa(1,2)*aa(3,1) , aa(1,1)*aa(3,3)+aa(1,3)*aa(3,1) , aa(1,2)*aa(3,3)+aa(1,3)*aa(3,2) ]
-    BB(6,:) = [ sq2*aa(2,1)*aa(3,1) , sq2*aa(2,2)*aa(3,2) , sq2*aa(2,3)*aa(3,3) ,  &
-        aa(2,1)*aa(3,2)+aa(2,2)*aa(3,1) , aa(2,1)*aa(3,3)+aa(2,3)*aa(3,1) , aa(2,2)*aa(3,3)+aa(2,3)*aa(3,2) ]
+BB(4,:) = [ sq2*aa(2,1)*aa(1,1) , sq2*aa(2,2)*aa(1,2) , sq2*aa(2,3)*aa(1,3) , &
+    aa(2,1)*aa(1,2)+aa(2,2)*aa(1,1) , aa(2,1)*aa(1,3)+aa(2,3)*aa(1,1) , aa(2,2)*aa(1,3)+aa(2,3)*aa(1,2) ]
+BB(5,:) = [ sq2*aa(1,1)*aa(3,1) , sq2*aa(1,2)*aa(3,2) , sq2*aa(1,3)*aa(3,3) ,  &
+    aa(1,1)*aa(3,2)+aa(1,2)*aa(3,1) , aa(1,1)*aa(3,3)+aa(1,3)*aa(3,1) , aa(1,2)*aa(3,3)+aa(1,3)*aa(3,2) ]
+BB(6,:) = [ sq2*aa(2,1)*aa(3,1) , sq2*aa(2,2)*aa(3,2) , sq2*aa(2,3)*aa(3,3) ,  &
+    aa(2,1)*aa(3,2)+aa(2,2)*aa(3,1) , aa(2,1)*aa(3,3)+aa(2,3)*aa(3,1) , aa(2,2)*aa(3,3)+aa(2,3)*aa(3,2) ]
 
 End Function tra_R6
 
@@ -278,41 +219,41 @@ End Function tra_R6
 !------------------------------------------------------------------------------  
 SUBROUTINE check_sym(matin, sym)
 
-    REAL(KIND=rk), DIMENSION(:,:), INTENT(IN)  :: matin
-    REAL(KIND=rk)                , INTENT(OUT) :: sym
+REAL(rk), DIMENSION(:,:), INTENT(IN)  :: matin
+REAL(rk), INTENT(OUT) :: sym
 
-    INTEGER(KIND=ik) :: ii, jj
-    REAL(KIND=rk) :: cummu, entry_counter
+INTEGER(ik) :: ii, jj
+REAL(rk) :: cummu, entry_counter
 
-    !------------------------------------------------------------------------------
-    ! Calculate the differences to get the information of symmetry
-    ! Earlier version...
-    !------------------------------------------------------------------------------
+!------------------------------------------------------------------------------
+! Calculate the differences to get the information of symmetry
+! Earlier version...
+!------------------------------------------------------------------------------
 
-    cummu = 0._rk
-    ii=1_ik
-    entry_counter = 0._rk
-    DO WHILE (ii < SIZE(matin, DIM=1))
-    
-        jj=2_ik
-        DO WHILE (jj <= SIZE(matin, DIM=2))
-            cummu = cummu + (matin(ii,jj) /  matin(jj,ii))  
+cummu = 0._rk
+ii=1_ik
+entry_counter = 0._rk
+DO WHILE (ii < SIZE(matin, DIM=1))
 
-            !------------------------------------------------------------------------------
-            ! How many entries are averaged?
-            !------------------------------------------------------------------------------
-            entry_counter = entry_counter + 1._rk     
+    jj=2_ik
+    DO WHILE (jj <= SIZE(matin, DIM=2))
+        cummu = cummu + (matin(ii,jj) /  matin(jj,ii))  
 
-            jj = jj + 1_ik
-        END DO
+        !------------------------------------------------------------------------------
+        ! How many entries are averaged?
+        !------------------------------------------------------------------------------
+        entry_counter = entry_counter + 1._rk     
 
-        ii = ii + 1_ik
+        jj = jj + 1_ik
     END DO
 
-    !------------------------------------------------------------------------------
-    ! 1 - sym quotient to compare to 0
-    !------------------------------------------------------------------------------
-    sym = 1._rk - (cummu / entry_counter)
+    ii = ii + 1_ik
+END DO
+
+!------------------------------------------------------------------------------
+! 1 - sym quotient to compare to 0
+!------------------------------------------------------------------------------
+sym = 1._rk - (cummu / entry_counter)
 END SUBROUTINE check_sym
 
 
@@ -330,19 +271,19 @@ END SUBROUTINE check_sym
 !------------------------------------------------------------------------------ 
 SUBROUTINE zerothres_num(num, thres)
 
-    REAL(KIND=rk), INTENT(INOUT) :: num 
-    REAL(KIND=rk), INTENT(IN), OPTIONAL :: thres
+REAL(rk), INTENT(INOUT) :: num 
+REAL(rk), INTENT(IN), OPTIONAL :: thres
 
-    REAL(KIND=rk) :: thres_u
+REAL(rk) :: thres_u
 
-    thres_u = num_zero
-    IF(PRESENT(thres)) thres_u = thres
+thres_u = num_zero
+IF(PRESENT(thres)) thres_u = thres
 
-    IF (num >= 0._rk) THEN
-        IF (num <=  thres_u) num = 0._rk
-    ELSE
-        IF (num >= -thres_u) num = 0._rk
-    END IF
+IF (num >= 0._rk) THEN
+    IF (num <=  thres_u) num = 0._rk
+ELSE
+    IF (num >= -thres_u) num = 0._rk
+END IF
 
 END SUBROUTINE zerothres_num
 
@@ -360,22 +301,22 @@ END SUBROUTINE zerothres_num
 !------------------------------------------------------------------------------ 
 SUBROUTINE zerothres_OnD(oneD, thres)
 
-    REAL(KIND=rk), DIMENSION(:), INTENT(INOUT) :: oneD 
-    REAL(KIND=rk), INTENT(IN), OPTIONAL :: thres
+REAL(rk), DIMENSION(:), INTENT(INOUT) :: oneD 
+REAL(rk), INTENT(IN), OPTIONAL :: thres
 
-    REAL(KIND=rk) :: thres_u
-    INTEGER(KIND=ik) :: ii
+REAL(rk) :: thres_u
+INTEGER(ik) :: ii
 
-    thres_u = num_zero
-    IF(PRESENT(thres)) thres_u = thres
+thres_u = num_zero
+IF(PRESENT(thres)) thres_u = thres
 
-    DO ii=1, SIZE(oneD)
-        IF (oneD(ii) >= 0._rk) THEN
-            IF (oneD(ii) <=  thres_u) oneD(ii) = 0._rk
-        ELSE
-            IF (oneD(ii) >= -thres_u) oneD(ii) = 0._rk
-        END IF
-    END DO
+DO ii=1, SIZE(oneD)
+    IF (oneD(ii) >= 0._rk) THEN
+        IF (oneD(ii) <=  thres_u) oneD(ii) = 0._rk
+    ELSE
+        IF (oneD(ii) >= -thres_u) oneD(ii) = 0._rk
+    END IF
+END DO
 END SUBROUTINE zerothres_OnD
 
 
@@ -392,24 +333,24 @@ END SUBROUTINE zerothres_OnD
 !------------------------------------------------------------------------------ 
 SUBROUTINE zerothres_TwD(TwD, thres)
 
-    REAL(KIND=rk), DIMENSION(:,:), INTENT(INOUT) :: TwD 
-    REAL(KIND=rk), INTENT(IN), OPTIONAL :: thres
+REAL(rk), DIMENSION(:,:), INTENT(INOUT) :: TwD 
+REAL(rk), INTENT(IN), OPTIONAL :: thres
 
-    REAL(KIND=rk) :: thres_u
-    INTEGER(KIND=ik) :: ii, jj
+REAL(rk) :: thres_u
+INTEGER(ik) :: ii, jj
 
-    thres_u = num_zero
-    IF(PRESENT(thres)) thres_u = thres
+thres_u = num_zero
+IF(PRESENT(thres)) thres_u = thres
 
-    DO jj=1, SIZE(TwD, 2)
-    DO ii=1, SIZE(TwD, 1)
-        IF (TwD(ii, jj) >= 0._rk) THEN
-            IF (TwD(ii, jj) <=  thres_u) TwD(ii, jj) = 0._rk
-        ELSE
-            IF (TwD(ii, jj) >= -thres_u) TwD(ii, jj) = 0._rk
-        END IF
-    END DO
-    END DO
+DO jj=1, SIZE(TwD, 2)
+DO ii=1, SIZE(TwD, 1)
+    IF (TwD(ii, jj) >= 0._rk) THEN
+        IF (TwD(ii, jj) <=  thres_u) TwD(ii, jj) = 0._rk
+    ELSE
+        IF (TwD(ii, jj) >= -thres_u) TwD(ii, jj) = 0._rk
+    END IF
+END DO
+END DO
 END SUBROUTINE zerothres_TwD
 
 
@@ -426,26 +367,26 @@ END SUBROUTINE zerothres_TwD
 !------------------------------------------------------------------------------ 
 SUBROUTINE zerothres_ThD(ThD, thres)
 
-    REAL(KIND=rk), DIMENSION(:, :, :), INTENT(INOUT) :: ThD 
-    REAL(KIND=rk), INTENT(IN), OPTIONAL :: thres
+REAL(rk), DIMENSION(:, :, :), INTENT(INOUT) :: ThD 
+REAL(rk), INTENT(IN), OPTIONAL :: thres
 
-    REAL(KIND=rk) :: thres_u
-    INTEGER(KIND=ik) :: ii, jj, kk
+REAL(rk) :: thres_u
+INTEGER(ik) :: ii, jj, kk
 
-    thres_u = num_zero
-    IF(PRESENT(thres)) thres_u = thres
+thres_u = num_zero
+IF(PRESENT(thres)) thres_u = thres
 
-    DO kk=1, SIZE(ThD, 3)
-    DO jj=1, SIZE(ThD, 2)
-    DO ii=1, SIZE(ThD, 1)
-        IF (ThD(ii, jj, kk) >= 0._rk) THEN
-            IF (ThD(ii, jj, kk) <=  thres_u) ThD(ii, jj, kk) = 0._rk
-        ELSE
-            IF (ThD(ii, jj, kk) >= -thres_u) ThD(ii, jj, kk) = 0._rk
-        END IF
-    END DO
-    END DO
-    END DO
+DO kk=1, SIZE(ThD, 3)
+DO jj=1, SIZE(ThD, 2)
+DO ii=1, SIZE(ThD, 1)
+    IF (ThD(ii, jj, kk) >= 0._rk) THEN
+        IF (ThD(ii, jj, kk) <=  thres_u) ThD(ii, jj, kk) = 0._rk
+    ELSE
+        IF (ThD(ii, jj, kk) >= -thres_u) ThD(ii, jj, kk) = 0._rk
+    END IF
+END DO
+END DO
+END DO
 END SUBROUTINE zerothres_ThD
 
 !------------------------------------------------------------------------------
@@ -466,24 +407,24 @@ END SUBROUTINE zerothres_ThD
 !------------------------------------------------------------------------------  
 FUNCTION eul_2_un_quat_rk (euler_radians)
 
-    REAL(KIND=rk), DIMENSION(3) :: euler_radians, radians
-    TYPE(duaternion) :: eul_2_un_quat_rk
+REAL(rk), DIMENSION(3) :: euler_radians, radians
+TYPE(duaternion) :: eul_2_un_quat_rk
 
-    REAL (KIND=rk) :: ca, cb, cg, sa, sb, sg
+REAL (rk) :: ca, cb, cg, sa, sb, sg
 
-    radians = euler_radians * 0.5_rk ! angle/2 to get a quaternion!
+radians = euler_radians * 0.5_rk ! angle/2 to get a quaternion!
 
-    ca = COS(radians(1))
-    sa = SIN(radians(1))
-    cb = COS(radians(2))
-    sb = SIN(radians(2))
-    cg = COS(radians(3))
-    sg = SIN(radians(3))
+ca = COS(radians(1))
+sa = SIN(radians(1))
+cb = COS(radians(2))
+sb = SIN(radians(2))
+cg = COS(radians(3))
+sg = SIN(radians(3))
 
-    eul_2_un_quat_rk%w = ca * cb * cg + sa * sb * sg
-    eul_2_un_quat_rk%x = sa * cb * cg - ca * sb * sg
-    eul_2_un_quat_rk%y = ca * sb * cg + sa * cb * sg
-    eul_2_un_quat_rk%z = ca * cb * sg - sa * sb * cg
+eul_2_un_quat_rk%w = ca * cb * cg + sa * sb * sg
+eul_2_un_quat_rk%x = sa * cb * cg - ca * sb * sg
+eul_2_un_quat_rk%y = ca * sb * cg + sa * cb * sg
+eul_2_un_quat_rk%z = ca * cb * sg - sa * sb * cg
 
 END FUNCTION eul_2_un_quat_rk
 
@@ -500,18 +441,18 @@ END FUNCTION eul_2_un_quat_rk
 !------------------------------------------------------------------------------  
 FUNCTION check_un_quat_rk (quat)
 
-    TYPE(duaternion) :: quat
-    LOGICAL :: check_un_quat_rk
+TYPE(duaternion) :: quat
+LOGICAL :: check_un_quat_rk
 
-    REAL(KIND=rk) :: rslt
+REAL(rk) :: rslt
 
-    rslt = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
+rslt = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
 
-    IF (rslt-1_rk <= num_zero) THEN
-        check_un_quat_rk = .TRUE.
-    ELSE
-        check_un_quat_rk = .FALSE.
-    END IF
+IF (rslt-1_rk <= num_zero) THEN
+    check_un_quat_rk = .TRUE.
+ELSE
+    check_un_quat_rk = .FALSE.
+END IF
 
 END FUNCTION check_un_quat_rk
 
@@ -528,10 +469,10 @@ END FUNCTION check_un_quat_rk
 !------------------------------------------------------------------------------  
 FUNCTION quat_norm_rk (quat)
 
-    TYPE(duaternion) :: quat
-    REAL(KIND=rk) :: quat_norm_rk
+TYPE(duaternion) :: quat
+REAL(rk) :: quat_norm_rk
 
-    quat_norm_rk = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
+quat_norm_rk = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
 
 END FUNCTION quat_norm_rk
 
@@ -549,13 +490,13 @@ END FUNCTION quat_norm_rk
 !------------------------------------------------------------------------------  
 FUNCTION q_add_rk(q1, scalar)
 
-    TYPE(duaternion) :: q1, q_add_rk
-    REAL(KIND=rk) :: scalar
+TYPE(duaternion) :: q1, q_add_rk
+REAL(rk) :: scalar
 
-    q_add_rk%w = q1%w + scalar
-    q_add_rk%x = q1%x + scalar
-    q_add_rk%y = q1%y + scalar
-    q_add_rk%z = q1%z + scalar
+q_add_rk%w = q1%w + scalar
+q_add_rk%x = q1%x + scalar
+q_add_rk%y = q1%y + scalar
+q_add_rk%z = q1%z + scalar
 
 END FUNCTION q_add_rk
 
@@ -573,13 +514,13 @@ END FUNCTION q_add_rk
 !------------------------------------------------------------------------------  
 FUNCTION q_mult_rk (q1, scalar)
 
-    TYPE(duaternion) :: q1, q_mult_rk
-    REAL(KIND=rk) :: scalar
+TYPE(duaternion) :: q1, q_mult_rk
+REAL(rk) :: scalar
 
-    q_mult_rk%w = q1%w * scalar
-    q_mult_rk%x = q1%x * scalar
-    q_mult_rk%y = q1%y * scalar
-    q_mult_rk%z = q1%z * scalar
+q_mult_rk%w = q1%w * scalar
+q_mult_rk%x = q1%x * scalar
+q_mult_rk%y = q1%y * scalar
+q_mult_rk%z = q1%z * scalar
 
 END FUNCTION q_mult_rk
 
@@ -597,13 +538,13 @@ END FUNCTION q_mult_rk
 !------------------------------------------------------------------------------ 
 FUNCTION q_dvd_rk (q1, scalar)
 
-    TYPE(duaternion) :: q1, q_dvd_rk
-    REAL(KIND=rk) :: scalar
-    
-    q_dvd_rk%w = q1%w / scalar
-    q_dvd_rk%x = q1%x / scalar
-    q_dvd_rk%y = q1%y / scalar
-    q_dvd_rk%z = q1%z / scalar
+TYPE(duaternion) :: q1, q_dvd_rk
+REAL(rk) :: scalar
+
+q_dvd_rk%w = q1%w / scalar
+q_dvd_rk%x = q1%x / scalar
+q_dvd_rk%y = q1%y / scalar
+q_dvd_rk%z = q1%z / scalar
 
 END FUNCTION q_dvd_rk
 
@@ -621,12 +562,12 @@ END FUNCTION q_dvd_rk
 !------------------------------------------------------------------------------ 
 FUNCTION quat_prod_rk (q1, q2)
 
-    TYPE(duaternion) :: q1, q2, quat_prod_rk
+TYPE(duaternion) :: q1, q2, quat_prod_rk
 
-    quat_prod_rk%w = q1%w*q2%w-q1%x*q2%x-q1%y*q2%y-q1%z*q2%z
-    quat_prod_rk%x = q1%w*q2%x+q1%x*q2%w+q1%y*q2%z-q1%z*q2%y
-    quat_prod_rk%y = q1%w*q2%y-q1%x*q2%z+q1%y*q2%w+q1%z*q2%x
-    quat_prod_rk%z = q1%w*q2%z+q1%x*q2%y-q1%y*q2%x+q1%z*q2%w
+quat_prod_rk%w = q1%w*q2%w-q1%x*q2%x-q1%y*q2%y-q1%z*q2%z
+quat_prod_rk%x = q1%w*q2%x+q1%x*q2%w+q1%y*q2%z-q1%z*q2%y
+quat_prod_rk%y = q1%w*q2%y-q1%x*q2%z+q1%y*q2%w+q1%z*q2%x
+quat_prod_rk%z = q1%w*q2%z+q1%x*q2%y-q1%y*q2%x+q1%z*q2%w
 
 END FUNCTION quat_prod_rk
 
@@ -643,12 +584,12 @@ END FUNCTION quat_prod_rk
 !------------------------------------------------------------------------------ 
 FUNCTION conjugate_quat_rk(quat)
 
-    TYPE(duaternion) :: quat, conjugate_quat_rk
+TYPE(duaternion) :: quat, conjugate_quat_rk
 
-    conjugate_quat_rk%w =   quat%w
-    conjugate_quat_rk%x = - quat%x
-    conjugate_quat_rk%y = - quat%y
-    conjugate_quat_rk%z = - quat%z
+conjugate_quat_rk%w =   quat%w
+conjugate_quat_rk%x = - quat%x
+conjugate_quat_rk%y = - quat%y
+conjugate_quat_rk%z = - quat%z
 
 END FUNCTION conjugate_quat_rk
 
@@ -666,21 +607,21 @@ END FUNCTION conjugate_quat_rk
 !------------------------------------------------------------------------------
 FUNCTION rotate_point_rk(quat, point)
 
-    TYPE(duaternion) :: quat
-    REAL(KIND=rk), DIMENSION(3) :: point, rotate_point_rk
+TYPE(duaternion) :: quat
+REAL(rk), DIMENSION(3) :: point, rotate_point_rk
 
-    TYPE(duaternion) :: pnt, rtt_pnt
+TYPE(duaternion) :: pnt, rtt_pnt
 
-    pnt%w = 0._rk
-    pnt%x = point(1)
-    pnt%y = point(2)
-    pnt%z = point(3)
+pnt%w = 0._rk
+pnt%x = point(1)
+pnt%y = point(2)
+pnt%z = point(3)
 
-    rtt_pnt = quat_prod_rk(quat_prod_rk(quat, pnt), conjugate_quat_rk(quat))
+rtt_pnt = quat_prod_rk(quat_prod_rk(quat, pnt), conjugate_quat_rk(quat))
 
-    rotate_point_rk(1) = rtt_pnt%x
-    rotate_point_rk(2) = rtt_pnt%y
-    rotate_point_rk(3) = rtt_pnt%z
+rotate_point_rk(1) = rtt_pnt%x
+rotate_point_rk(2) = rtt_pnt%y
+rotate_point_rk(3) = rtt_pnt%z
 
 END FUNCTION rotate_point_rk
 
@@ -698,15 +639,15 @@ END FUNCTION rotate_point_rk
 !------------------------------------------------------------------------------
 FUNCTION quat_2_rot_mat_rk(q)
 
-    TYPE(duaternion) :: q
-    REAL(KIND=rk), DIMENSION(3,3) :: quat_2_rot_mat_rk
+TYPE(duaternion) :: q
+REAL(rk), DIMENSION(3,3) :: quat_2_rot_mat_rk
 
-    quat_2_rot_mat_rk(1,:) = [ q%w**2 + q%x**2 - q%y**2 - q%z**2  , &
-        2._rk*q%x*q%y - 2._rk*q%w*q%z , 2._rk*q%x*q%z - 2._rk*q%w*q%y  ]
-    quat_2_rot_mat_rk(2,:) = [ 2._rk*q%x*q%y + 2._rk*q%w*q%z , &
-        q%w**2 - q%x**2 + q%y**2 + - q%z**2 , 2._rk*q%y*q%z - 2._rk*q%w*q%x ]
-    quat_2_rot_mat_rk(3,:) = [ 2._rk*q%x*q%z - 2._rk*q%w*q%y , &
-        2._rk*q%y*q%z + 2._rk*q%w*q%x , q%w**2 - q%x**2 - q%y**2 + q%z**2   ]
+quat_2_rot_mat_rk(1,:) = [ q%w**2 + q%x**2 - q%y**2 - q%z**2  , &
+    2._rk*q%x*q%y - 2._rk*q%w*q%z , 2._rk*q%x*q%z - 2._rk*q%w*q%y  ]
+quat_2_rot_mat_rk(2,:) = [ 2._rk*q%x*q%y + 2._rk*q%w*q%z , &
+    q%w**2 - q%x**2 + q%y**2 + - q%z**2 , 2._rk*q%y*q%z - 2._rk*q%w*q%x ]
+quat_2_rot_mat_rk(3,:) = [ 2._rk*q%x*q%z - 2._rk*q%w*q%y , &
+    2._rk*q%y*q%z + 2._rk*q%w*q%x , q%w**2 - q%x**2 - q%y**2 + q%z**2   ]
 
 END FUNCTION quat_2_rot_mat_rk
 
@@ -729,24 +670,24 @@ END FUNCTION quat_2_rot_mat_rk
 !------------------------------------------------------------------------------  
 FUNCTION eul_2_un_quat_sk (euler_radians)
 
-    REAL(KIND=sk) , DIMENSION(3) :: euler_radians, radians
-    TYPE(suaternion) :: eul_2_un_quat_sk
+REAL(sk) , DIMENSION(3) :: euler_radians, radians
+TYPE(suaternion) :: eul_2_un_quat_sk
 
-    REAL (KIND=sk) :: ca, cb, cg, sa, sb, sg
+REAL (sk) :: ca, cb, cg, sa, sb, sg
 
-    radians = euler_radians * 0.5_rk ! angle/2 to get a quaternion!
+radians = euler_radians * 0.5_rk ! angle/2 to get a quaternion!
 
-    ca = COS(radians(1))
-    sa = SIN(radians(1))
-    cb = COS(radians(2))
-    sb = SIN(radians(2))
-    cg = COS(radians(3))
-    sg = SIN(radians(3))
+ca = COS(radians(1))
+sa = SIN(radians(1))
+cb = COS(radians(2))
+sb = SIN(radians(2))
+cg = COS(radians(3))
+sg = SIN(radians(3))
 
-    eul_2_un_quat_sk%w = ca * cb * cg + sa * sb * sg
-    eul_2_un_quat_sk%x = sa * cb * cg - ca * sb * sg
-    eul_2_un_quat_sk%y = ca * sb * cg + sa * cb * sg
-    eul_2_un_quat_sk%z = ca * cb * sg - sa * sb * cg
+eul_2_un_quat_sk%w = ca * cb * cg + sa * sb * sg
+eul_2_un_quat_sk%x = sa * cb * cg - ca * sb * sg
+eul_2_un_quat_sk%y = ca * sb * cg + sa * cb * sg
+eul_2_un_quat_sk%z = ca * cb * sg - sa * sb * cg
 
 END FUNCTION eul_2_un_quat_sk
 
@@ -763,18 +704,18 @@ END FUNCTION eul_2_un_quat_sk
 !------------------------------------------------------------------------------  
 FUNCTION check_un_quat_sk (quat)
 
-    TYPE(suaternion) :: quat
-    LOGICAL :: check_un_quat_sk
+TYPE(suaternion) :: quat
+LOGICAL :: check_un_quat_sk
 
-    REAL(KIND=sk) :: rslt
+REAL(sk) :: rslt
 
-    rslt = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
+rslt = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
 
-    IF (rslt-1_rk <= num_zero) THEN
-        check_un_quat_sk = .TRUE.
-    ELSE
-        check_un_quat_sk = .FALSE.
-    END IF
+IF (rslt-1_rk <= num_zero) THEN
+    check_un_quat_sk = .TRUE.
+ELSE
+    check_un_quat_sk = .FALSE.
+END IF
 
 END FUNCTION check_un_quat_sk
 
@@ -791,10 +732,10 @@ END FUNCTION check_un_quat_sk
 !------------------------------------------------------------------------------  
 FUNCTION quat_norm_sk (quat)
 
-    TYPE(suaternion) :: quat
-    REAL(KIND=sk) :: quat_norm_sk
+TYPE(suaternion) :: quat
+REAL(sk) :: quat_norm_sk
 
-    quat_norm_sk = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
+quat_norm_sk = quat%w**2 + quat%x**2 + quat%y**2 + quat%z**2
 
 END FUNCTION quat_norm_sk
 
@@ -812,13 +753,13 @@ END FUNCTION quat_norm_sk
 !------------------------------------------------------------------------------  
 FUNCTION q_add_sk(q1, scalar)
 
-    TYPE(suaternion) :: q1, q_add_sk
-    REAL(KIND=sk) :: scalar
+TYPE(suaternion) :: q1, q_add_sk
+REAL(sk) :: scalar
 
-    q_add_sk%w = q1%w + scalar
-    q_add_sk%x = q1%x + scalar
-    q_add_sk%y = q1%y + scalar
-    q_add_sk%z = q1%z + scalar
+q_add_sk%w = q1%w + scalar
+q_add_sk%x = q1%x + scalar
+q_add_sk%y = q1%y + scalar
+q_add_sk%z = q1%z + scalar
 
 END FUNCTION q_add_sk
 
@@ -836,13 +777,13 @@ END FUNCTION q_add_sk
 !------------------------------------------------------------------------------  
 FUNCTION q_mult_sk (q1, scalar)
 
-    TYPE(suaternion) :: q1, q_mult_sk
-    REAL(KIND=sk) :: scalar
+TYPE(suaternion) :: q1, q_mult_sk
+REAL(sk) :: scalar
 
-    q_mult_sk%w = q1%w * scalar
-    q_mult_sk%x = q1%x * scalar
-    q_mult_sk%y = q1%y * scalar
-    q_mult_sk%z = q1%z * scalar
+q_mult_sk%w = q1%w * scalar
+q_mult_sk%x = q1%x * scalar
+q_mult_sk%y = q1%y * scalar
+q_mult_sk%z = q1%z * scalar
 
 END FUNCTION q_mult_sk
 
@@ -860,13 +801,13 @@ END FUNCTION q_mult_sk
 !------------------------------------------------------------------------------ 
 FUNCTION q_dvd_sk (q1, scalar)
 
-    TYPE(suaternion) :: q1, q_dvd_sk
-    REAL(KIND=sk) :: scalar
-    
-    q_dvd_sk%w = q1%w / scalar
-    q_dvd_sk%x = q1%x / scalar
-    q_dvd_sk%y = q1%y / scalar
-    q_dvd_sk%z = q1%z / scalar
+TYPE(suaternion) :: q1, q_dvd_sk
+REAL(sk) :: scalar
+
+q_dvd_sk%w = q1%w / scalar
+q_dvd_sk%x = q1%x / scalar
+q_dvd_sk%y = q1%y / scalar
+q_dvd_sk%z = q1%z / scalar
 
 END FUNCTION q_dvd_sk
 
@@ -884,12 +825,12 @@ END FUNCTION q_dvd_sk
 !------------------------------------------------------------------------------ 
 FUNCTION quat_prod_sk (q1, q2)
 
-    TYPE(suaternion) :: q1, q2, quat_prod_sk
+TYPE(suaternion) :: q1, q2, quat_prod_sk
 
-    quat_prod_sk%w = q1%w*q2%w-q1%x*q2%x-q1%y*q2%y-q1%z*q2%z
-    quat_prod_sk%x = q1%w*q2%x+q1%x*q2%w+q1%y*q2%z-q1%z*q2%y
-    quat_prod_sk%y = q1%w*q2%y-q1%x*q2%z+q1%y*q2%w+q1%z*q2%x
-    quat_prod_sk%z = q1%w*q2%z+q1%x*q2%y-q1%y*q2%x+q1%z*q2%w
+quat_prod_sk%w = q1%w*q2%w-q1%x*q2%x-q1%y*q2%y-q1%z*q2%z
+quat_prod_sk%x = q1%w*q2%x+q1%x*q2%w+q1%y*q2%z-q1%z*q2%y
+quat_prod_sk%y = q1%w*q2%y-q1%x*q2%z+q1%y*q2%w+q1%z*q2%x
+quat_prod_sk%z = q1%w*q2%z+q1%x*q2%y-q1%y*q2%x+q1%z*q2%w
 
 END FUNCTION quat_prod_sk
 
@@ -906,12 +847,12 @@ END FUNCTION quat_prod_sk
 !------------------------------------------------------------------------------ 
 FUNCTION conjugate_quat_sk(quat)
 
-    TYPE(suaternion) :: quat, conjugate_quat_sk
+TYPE(suaternion) :: quat, conjugate_quat_sk
 
-    conjugate_quat_sk%w =   quat%w
-    conjugate_quat_sk%x = - quat%x
-    conjugate_quat_sk%y = - quat%y
-    conjugate_quat_sk%z = - quat%z
+conjugate_quat_sk%w =   quat%w
+conjugate_quat_sk%x = - quat%x
+conjugate_quat_sk%y = - quat%y
+conjugate_quat_sk%z = - quat%z
 
 END FUNCTION conjugate_quat_sk
 
@@ -929,21 +870,21 @@ END FUNCTION conjugate_quat_sk
 !------------------------------------------------------------------------------
 FUNCTION rotate_point_sk(quat, point)
 
-    TYPE(suaternion) :: quat
-    REAL(KIND=sk), DIMENSION(3) :: point, rotate_point_sk
+TYPE(suaternion) :: quat
+REAL(sk), DIMENSION(3) :: point, rotate_point_sk
 
-    TYPE(suaternion) :: pnt, rtt_pnt
+TYPE(suaternion) :: pnt, rtt_pnt
 
-    pnt%w = 0._rk
-    pnt%x = point(1)
-    pnt%y = point(2)
-    pnt%z = point(3)
+pnt%w = 0._rk
+pnt%x = point(1)
+pnt%y = point(2)
+pnt%z = point(3)
 
-    rtt_pnt = quat_prod_sk(quat_prod_sk(quat, pnt), conjugate_quat_sk(quat))
+rtt_pnt = quat_prod_sk(quat_prod_sk(quat, pnt), conjugate_quat_sk(quat))
 
-    rotate_point_sk(1) = rtt_pnt%x
-    rotate_point_sk(2) = rtt_pnt%y
-    rotate_point_sk(3) = rtt_pnt%z
+rotate_point_sk(1) = rtt_pnt%x
+rotate_point_sk(2) = rtt_pnt%y
+rotate_point_sk(3) = rtt_pnt%z
 
 END FUNCTION rotate_point_sk
 
@@ -961,15 +902,15 @@ END FUNCTION rotate_point_sk
 !------------------------------------------------------------------------------
 FUNCTION quat_2_rot_mat_sk(q)
 
-    TYPE(suaternion) :: q
-    REAL(KIND=rk), DIMENSION(3,3) :: quat_2_rot_mat_sk
+TYPE(suaternion) :: q
+REAL(rk), DIMENSION(3,3) :: quat_2_rot_mat_sk
 
-    quat_2_rot_mat_sk(1,:) = [ q%w**2 + q%x**2 - q%y**2 - q%z**2  , &
-        2._rk*q%x*q%y - 2._rk*q%w*q%z , 2._rk*q%x*q%z - 2._rk*q%w*q%y  ]
-    quat_2_rot_mat_sk(2,:) = [ 2._rk*q%x*q%y + 2._rk*q%w*q%z , &
-        q%w**2 - q%x**2 + q%y**2 + - q%z**2 , 2._rk*q%y*q%z - 2._rk*q%w*q%x ]
-    quat_2_rot_mat_sk(3,:) = [ 2._rk*q%x*q%z - 2._rk*q%w*q%y , &
-        2._rk*q%y*q%z + 2._rk*q%w*q%x , q%w**2 - q%x**2 - q%y**2 + q%z**2   ]
+quat_2_rot_mat_sk(1,:) = [ q%w**2 + q%x**2 - q%y**2 - q%z**2  , &
+    2._rk*q%x*q%y - 2._rk*q%w*q%z , 2._rk*q%x*q%z - 2._rk*q%w*q%y  ]
+quat_2_rot_mat_sk(2,:) = [ 2._rk*q%x*q%y + 2._rk*q%w*q%z , &
+    q%w**2 - q%x**2 + q%y**2 + - q%z**2 , 2._rk*q%y*q%z - 2._rk*q%w*q%x ]
+quat_2_rot_mat_sk(3,:) = [ 2._rk*q%x*q%z - 2._rk*q%w*q%y , &
+    2._rk*q%y*q%z + 2._rk*q%w*q%x , q%w**2 - q%x**2 - q%y**2 + q%z**2   ]
 
 END FUNCTION quat_2_rot_mat_sk
 
@@ -988,11 +929,11 @@ END FUNCTION quat_2_rot_mat_sk
 !------------------------------------------------------------------------------
 FUNCTION crpr_rk(a, b)
 
-    REAL(KIND=rk), DIMENSION(3) :: crpr_rk,a,b
+REAL(rk), DIMENSION(3) :: crpr_rk,a,b
 
-    crpr_rk(1) = a(2) * b(3) - a(3) * b(2)
-    crpr_rk(2) = a(3) * b(1) - a(1) * b(3)
-    crpr_rk(3) = a(1) * b(2) - a(2) * b(1)
+crpr_rk(1) = a(2) * b(3) - a(3) * b(2)
+crpr_rk(2) = a(3) * b(1) - a(1) * b(3)
+crpr_rk(3) = a(1) * b(2) - a(2) * b(1)
 
 END FUNCTION crpr_rk
 
@@ -1010,11 +951,11 @@ END FUNCTION crpr_rk
 !------------------------------------------------------------------------------
 FUNCTION crpr_sk(a, b)
 
-    REAL(KIND=sk), DIMENSION(3) :: crpr_sk,a,b
+REAL(sk), DIMENSION(3) :: crpr_sk,a,b
 
-    crpr_sk(1) = a(2) * b(3) - a(3) * b(2)
-    crpr_sk(2) = a(3) * b(1) - a(1) * b(3)
-    crpr_sk(3) = a(1) * b(2) - a(2) * b(1)
+crpr_sk(1) = a(2) * b(3) - a(3) * b(2)
+crpr_sk(2) = a(3) * b(1) - a(1) * b(3)
+crpr_sk(3) = a(1) * b(2) - a(2) * b(1)
 
 END FUNCTION crpr_sk
 
@@ -1035,9 +976,9 @@ END FUNCTION crpr_sk
 !------------------------------------------------------------------------------  
 FUNCTION dist_pnt_pln_by_pnts_rk(pp1, pp2, pp3, p) Result(di)
 
-REAL(KIND=rk), dimension(3), Intent(IN) :: pp1, pp2, pp3, p
-REAL(KIND=rk), dimension(3) :: nn, unitv 
-REAL(KIND=rk):: di, magni
+REAL(rk), dimension(3), Intent(IN) :: pp1, pp2, pp3, p
+REAL(rk), dimension(3) :: nn, unitv 
+REAL(rk):: di, magni
 
 !------------------------------------------------------------------------------
 ! The normal to the plane
@@ -1075,9 +1016,9 @@ END FUNCTION dist_pnt_pln_by_pnts_rk
 !------------------------------------------------------------------------------  
 FUNCTION dist_pnt_pln_by_pnts_sk(pp1, pp2, pp3, p) Result(di)
 
-REAL(KIND=sk), dimension(3), Intent(IN) :: pp1, pp2, pp3, p
-REAL(KIND=sk), dimension(3) :: nn, unitv 
-REAL(KIND=sk):: di, magni
+REAL(sk), dimension(3), Intent(IN) :: pp1, pp2, pp3, p
+REAL(sk), dimension(3) :: nn, unitv 
+REAL(sk):: di, magni
 
 !------------------------------------------------------------------------------
 ! The normal to the plane
@@ -1097,5 +1038,25 @@ unitv = nn / magni
 di = DOT_PRODUCT(unitv, [p(1)-pp1(1), p(2)-pp1(2), p(3)-pp1(3)])
 
 END FUNCTION dist_pnt_pln_by_pnts_sk
+
+
+!------------------------------------------------------------------------------
+! FUNCTION: diagonal3D
+!------------------------------------------------------------------------------  
+!> @author Johannes Gebert - HLRS - NUM - gebert@hlrs.de
+!
+!> @brief
+!> Returns the diagonal of a box
+!
+!> @param[in] box Input box/cube
+!> @return diagonal Diagonal distance
+!------------------------------------------------------------------------------
+FUNCTION diagonal3D(box) result (diagonal)
+
+REAL(rk) :: box(3), diagonal
+
+diagonal = SQRT(box(1)**2 + box(2)**2 + box(3)**2)
+
+END FUNCTION diagonal3D
 
 END MODULE math

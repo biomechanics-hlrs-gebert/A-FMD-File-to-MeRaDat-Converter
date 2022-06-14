@@ -70,11 +70,11 @@ CONTAINS
 !------------------------------------------------------------------------------  
 SUBROUTINE get_rank_section(domain, sections, rank_section)
   
-INTEGER(KIND=ik), INTENT(IN)  :: domain
-INTEGER(KIND=ik), DIMENSION(3), INTENT(IN)  :: sections
-INTEGER(KIND=ik), DIMENSION(3), INTENT(OUT) :: rank_section
+INTEGER(ik), INTENT(IN)  :: domain
+INTEGER(ik), DIMENSION(3), INTENT(IN)  :: sections
+INTEGER(ik), DIMENSION(3), INTENT(OUT) :: rank_section
 
-INTEGER(KIND=ik) :: rank, yrmndr, zrmndr ! remainder
+INTEGER(ik) :: rank, yrmndr, zrmndr ! remainder
 
 !------------------------------------------------------------------------------
 ! Power of 2 is handled here, because with the algorithm of CASE DEFAULT, Greedy suboptimality kicks in!  
@@ -129,12 +129,12 @@ END SUBROUTINE get_rank_section
 SUBROUTINE mpi_read_raw_ik2(filename, disp, dims, subarray_dims, subarray_origin, subarray, dtrep)
 
 CHARACTER(LEN=*), INTENT(IN) :: filename
-INTEGER(KIND=MPI_OFFSET_KIND), INTENT(IN) :: disp
-INTEGER(KIND=ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
-INTEGER(KIND=INT16), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray
+INTEGER(MPI_OFFSET_KIND), INTENT(IN) :: disp
+INTEGER(ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
+INTEGER(INT16), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray
 
 ! file handle fh is provided by mpi itself and mustn't be given by the program/call/user
-INTEGER(KIND=mik) :: ierr, type_subarray, my_rank, size_mpi, fh
+INTEGER(mik) :: ierr, type_subarray, my_rank, size_mpi, fh
 CHARACTER(LEN=scl) :: datarep
 CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
@@ -151,8 +151,8 @@ CALL MPI_COMM_SIZE(MPI_COMM_WORLD, size_mpi, ierr)
 
 CALL MPI_FILE_OPEN(MPI_COMM_WORLD, TRIM(filename), MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
-CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, KIND=mik), INT(subarray_dims, KIND=mik), &
-   INT(subarray_origin, KIND=mik), MPI_ORDER_FORTRAN, MPI_INTEGER2, type_subarray, ierr)
+CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, mik), INT(subarray_dims, mik), &
+   INT(subarray_origin, mik), MPI_ORDER_FORTRAN, MPI_INTEGER2, type_subarray, ierr)
 
 CALL MPI_TYPE_COMMIT(type_subarray, ierr)
 
@@ -160,7 +160,7 @@ CALL MPI_FILE_SET_VIEW(fh, disp, MPI_INTEGER2, type_subarray, TRIM(datarep), MPI
 
 ALLOCATE(subarray(subarray_dims(1), subarray_dims(2), subarray_dims(3)))
 
-CALL MPI_FILE_READ_ALL(fh, subarray, INT(SIZE(subarray), KIND=mik), MPI_INTEGER2, MPI_STATUS_IGNORE, ierr)
+CALL MPI_FILE_READ_ALL(fh, subarray, INT(SIZE(subarray), mik), MPI_INTEGER2, MPI_STATUS_IGNORE, ierr)
 
 CALL MPI_TYPE_FREE(type_subarray, ierr)
 
@@ -189,12 +189,12 @@ END SUBROUTINE mpi_read_raw_ik2
 SUBROUTINE mpi_read_raw_ik4(filename, disp, dims, subarray_dims, subarray_origin, subarray, dtrep)
 
 CHARACTER(LEN=*), INTENT(IN) :: filename
-INTEGER(KIND=MPI_OFFSET_KIND), INTENT(IN) :: disp
-INTEGER(KIND=ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
-INTEGER(KIND=INT32), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray
+INTEGER(MPI_OFFSET_KIND), INTENT(IN) :: disp
+INTEGER(ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
+INTEGER(INT32), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray
 
 ! file handle fh is provided by mpi itself and mustn't be given by the program/call/user
-INTEGER(KIND=mik) :: ierr, type_subarray, my_rank, size_mpi, fh
+INTEGER(mik) :: ierr, type_subarray, my_rank, size_mpi, fh
 CHARACTER(LEN=scl) :: datarep
 CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
@@ -211,8 +211,8 @@ CALL MPI_COMM_SIZE(MPI_COMM_WORLD, size_mpi, ierr)
 
 CALL MPI_FILE_OPEN(MPI_COMM_WORLD, TRIM(filename), MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
-CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, KIND=mik), INT(subarray_dims, KIND=mik), & 
-   INT(subarray_origin, KIND=mik), MPI_ORDER_FORTRAN, MPI_INTEGER4, type_subarray,ierr)
+CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, mik), INT(subarray_dims, mik), & 
+   INT(subarray_origin, mik), MPI_ORDER_FORTRAN, MPI_INTEGER4, type_subarray,ierr)
 
 CALL MPI_TYPE_COMMIT(type_subarray, ierr)
 
@@ -220,7 +220,7 @@ CALL MPI_FILE_SET_VIEW(fh, disp, MPI_INTEGER4, type_subarray, TRIM(datarep), MPI
 
 ALLOCATE(subarray(subarray_dims(1), subarray_dims(2), subarray_dims(3)))
 
-CALL MPI_FILE_READ_ALL(fh, subarray, INT(SIZE(subarray), KIND=mik), MPI_INTEGER4, MPI_STATUS_IGNORE, ierr)
+CALL MPI_FILE_READ_ALL(fh, subarray, INT(SIZE(subarray), mik), MPI_INTEGER4, MPI_STATUS_IGNORE, ierr)
 
 CALL MPI_TYPE_FREE(type_subarray, ierr)
 
@@ -246,11 +246,11 @@ END SUBROUTINE mpi_read_raw_ik4
 !------------------------------------------------------------------------------  
 SUBROUTINE uik2_to_ik2(subarray)
 
-INTEGER(KIND=INT16), DIMENSION (:,:,:), INTENT(INOUT) :: subarray
-INTEGER(KIND=ik) :: ii, jj, kk
-INTEGER(KIND=ik), DIMENSION(3) :: shp
+INTEGER(INT16), DIMENSION (:,:,:), INTENT(INOUT) :: subarray
+INTEGER(ik) :: ii, jj, kk
+INTEGER(ik), DIMENSION(3) :: shp
 
-INTEGER(KIND=INT32), DIMENSION (:,:,:), ALLOCATABLE :: temp
+INTEGER(INT32), DIMENSION (:,:,:), ALLOCATABLE :: temp
 
 !------------------------------------------------------------------------------  
 ! Storing the array with + 65536 will cut off the image.
@@ -265,15 +265,15 @@ DO kk=1, shp(3)
 DO jj=1, shp(2)
 DO ii=1, shp(1)
    IF(subarray(ii,jj,kk) .LT. 0) THEN
-      temp(ii,jj,kk) = INT(subarray(ii,jj,kk), KIND=INT32) + INT(65536, KIND=INT32)
+      temp(ii,jj,kk) = INT(subarray(ii,jj,kk), INT32) + INT(65536, INT32)
    ELSE
-      temp(ii,jj,kk) = INT(subarray(ii,jj,kk), KIND=INT32)
+      temp(ii,jj,kk) = INT(subarray(ii,jj,kk), INT32)
    END IF 
 END DO
 END DO
 END DO
 
-subarray = INT(temp - 32768, KIND=INT16)
+subarray = INT(temp - 32768, INT16)
 
 DEALLOCATE(temp)
 END SUBROUTINE uik2_to_ik2
@@ -297,23 +297,23 @@ END SUBROUTINE uik2_to_ik2
 !------------------------------------------------------------------------------  
 SUBROUTINE uik2_to_ik4(subarray_in, subarray_out)
 
-INTEGER(KIND=INT16), DIMENSION (:,:,:), INTENT(IN) :: subarray_in
-INTEGER(KIND=INT32), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray_out
-INTEGER(KIND=ik) :: ii, jj, kk
-INTEGER(KIND=ik), DIMENSION(3) :: shp
+INTEGER(INT16), DIMENSION (:,:,:), INTENT(IN) :: subarray_in
+INTEGER(INT32), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray_out
+INTEGER(ik) :: ii, jj, kk
+INTEGER(ik), DIMENSION(3) :: shp
 
 !------------------------------------------------------------------------------  
 ! Storing the array with + 65536 will cut off the image.
 ! At least INT32 required. All of the required variables are INT32.
 !------------------------------------------------------------------------------  
-INTEGER(KIND=INT32), PARAMETER :: conv_param=0, offset=65536
+INTEGER(INT32), PARAMETER :: conv_param=0, offset=65536
 
 shp = SHAPE(subarray_in)
 
 ALLOCATE(subarray_out(shp(1), shp(2), shp(3)))
-subarray_out = INT(0, KIND=INT32)
+subarray_out = INT(0, INT32)
 
-subarray_out = INT(subarray_in, KIND=INT32)
+subarray_out = INT(subarray_in, INT32)
 
 DO kk=1, shp(3)
 DO jj=1, shp(2)
@@ -349,13 +349,13 @@ END SUBROUTINE uik2_to_ik4
 SUBROUTINE mpi_read_raw_rk4(filename, disp, dims, subarray_dims, subarray_origin, subarray, dtrep)
 
 CHARACTER(LEN=*), INTENT(IN) :: filename
-INTEGER(KIND=MPI_OFFSET_KIND), INTENT(IN) :: disp
-INTEGER(KIND=ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
-REAL(KIND=REAL32), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray
+INTEGER(MPI_OFFSET_KIND), INTENT(IN) :: disp
+INTEGER(ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
+REAL(REAL32), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray
 CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
 ! file handle fh is provided by mpi itself and mustn't be given by the program/call/user
-INTEGER(KIND=mik) :: ierr, type_subarray, my_rank, size_mpi, fh
+INTEGER(mik) :: ierr, type_subarray, my_rank, size_mpi, fh
 CHARACTER(LEN=scl) :: datarep
 
 datarep = 'NATIVE'
@@ -371,8 +371,8 @@ CALL MPI_COMM_SIZE(MPI_COMM_WORLD, size_mpi, ierr)
 
 CALL MPI_FILE_OPEN(MPI_COMM_WORLD, TRIM(filename), MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
   
-CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, KIND=mik), INT(subarray_dims, KIND=mik), & 
-   INT(subarray_origin, KIND=mik), MPI_ORDER_FORTRAN, MPI_REAL, type_subarray,ierr)
+CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, mik), INT(subarray_dims, mik), & 
+   INT(subarray_origin, mik), MPI_ORDER_FORTRAN, MPI_REAL, type_subarray,ierr)
 
 CALL MPI_TYPE_COMMIT(type_subarray, ierr)
 
@@ -380,7 +380,7 @@ CALL MPI_FILE_SET_VIEW(fh, disp, MPI_REAL, type_subarray, TRIM(datarep), MPI_INF
 
 ALLOCATE(subarray(subarray_dims(1), subarray_dims(2), subarray_dims(3)))
 
-CALL MPI_FILE_READ_ALL(fh, subarray, INT(SIZE(subarray), KIND=mik), MPI_REAL, MPI_STATUS_IGNORE, ierr)
+CALL MPI_FILE_READ_ALL(fh, subarray, INT(SIZE(subarray), mik), MPI_REAL, MPI_STATUS_IGNORE, ierr)
 
 CALL MPI_TYPE_FREE(type_subarray, ierr)
 
@@ -410,12 +410,12 @@ END SUBROUTINE mpi_read_raw_rk4
 SUBROUTINE mpi_read_raw_rk8(filename, disp, dims, subarray_dims, subarray_origin, subarray, dtrep)
 
 CHARACTER(LEN=*), INTENT(IN) :: filename
-INTEGER(KIND=MPI_OFFSET_KIND), INTENT(IN) :: disp
-INTEGER(KIND=ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
-REAL(KIND=REAL64), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray
+INTEGER(MPI_OFFSET_KIND), INTENT(IN) :: disp
+INTEGER(ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
+REAL(REAL64), DIMENSION (:,:,:), ALLOCATABLE, INTENT(OUT) :: subarray
 
 ! file handle fh is provided by mpi itself and mustn't be given by the program/call/user
-INTEGER(KIND=mik) :: ierr, type_subarray, my_rank, size_mpi, fh
+INTEGER(mik) :: ierr, type_subarray, my_rank, size_mpi, fh
 CHARACTER(LEN=scl) :: datarep
 CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
@@ -433,8 +433,8 @@ CALL MPI_COMM_SIZE(MPI_COMM_WORLD, size_mpi, ierr)
 ! file handle fh is provided by mpi itself and mustn't be given by the program/call/user
 CALL MPI_FILE_OPEN(MPI_COMM_WORLD, TRIM(filename), MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
-CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, KIND=mik), INT(subarray_dims, KIND=mik), & 
-   INT(subarray_origin, KIND=mik), MPI_ORDER_FORTRAN, MPI_DOUBLE_PRECISION, type_subarray,ierr)
+CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, mik), INT(subarray_dims, mik), & 
+   INT(subarray_origin, mik), MPI_ORDER_FORTRAN, MPI_DOUBLE_PRECISION, type_subarray,ierr)
 
 CALL MPI_TYPE_COMMIT(type_subarray, ierr)
 
@@ -442,7 +442,7 @@ CALL MPI_FILE_SET_VIEW(fh, disp, MPI_DOUBLE_PRECISION, type_subarray, TRIM(datar
 
 ALLOCATE(subarray(subarray_dims(1), subarray_dims(2), subarray_dims(3)))
 
-CALL MPI_FILE_READ_ALL(fh, subarray, INT(SIZE(subarray), KIND=mik), MPI_DOUBLE_PRECISION, MPI_STATUS_IGNORE, ierr)
+CALL MPI_FILE_READ_ALL(fh, subarray, INT(SIZE(subarray), mik), MPI_DOUBLE_PRECISION, MPI_STATUS_IGNORE, ierr)
 
 CALL MPI_TYPE_FREE(type_subarray, ierr)
 
@@ -475,13 +475,13 @@ END SUBROUTINE mpi_read_raw_rk8
 ! IF type = uint2 - send an int4 and let it convert into int2 (!) Have a look at the src for details
 
 CHARACTER(LEN=*), INTENT(IN) :: filename
-INTEGER(KIND=MPI_OFFSET_KIND), INTENT(IN) :: disp
-INTEGER(KIND=ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
-INTEGER(KIND=INT16), DIMENSION (:,:,:), INTENT(IN) :: subarray
+INTEGER(MPI_OFFSET_KIND), INTENT(IN) :: disp
+INTEGER(ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
+INTEGER(INT16), DIMENSION (:,:,:), INTENT(IN) :: subarray
 CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
 ! file handle fh is provided by mpi itself and mustn't be given by the program/call/user
-INTEGER(KIND=mik)  :: fh, ierr, type_subarray
+INTEGER(mik)  :: fh, ierr, type_subarray
 CHARACTER(LEN=scl) :: datarep = 'NATIVE'
 
 datarep = 'NATIVE'
@@ -492,14 +492,14 @@ END IF
 
 CALL MPI_FILE_OPEN(MPI_COMM_WORLD, TRIM(filename), MPI_MODE_WRONLY+MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
 
-CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, KIND=mik), INT(subarray_dims, KIND=mik), & 
-   INT(subarray_origin, KIND=mik), MPI_ORDER_FORTRAN, MPI_INTEGER2, type_subarray,ierr)
+CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, mik), INT(subarray_dims, mik), & 
+   INT(subarray_origin, mik), MPI_ORDER_FORTRAN, MPI_INTEGER2, type_subarray,ierr)
 
 CALL MPI_TYPE_COMMIT(type_subarray, ierr)
 
 CALL MPI_FILE_SET_VIEW(fh, disp, MPI_INTEGER2, type_subarray, TRIM(datarep), MPI_INFO_NULL, ierr)
 
-CALL MPI_FILE_WRITE_ALL(fh, subarray, INT(SIZE(subarray), KIND=mik), MPI_INTEGER2, MPI_STATUS_IGNORE, ierr)
+CALL MPI_FILE_WRITE_ALL(fh, subarray, INT(SIZE(subarray), mik), MPI_INTEGER2, MPI_STATUS_IGNORE, ierr)
 
 CALL MPI_TYPE_FREE(type_subarray, ierr)
 
@@ -533,13 +533,13 @@ END SUBROUTINE mpi_write_raw_ik2
 ! IF type = uint2 - send an int4 and let it convert into int2 (!) Have a look at the src for details
 
 CHARACTER(LEN=*), INTENT(IN) :: filename
-INTEGER(KIND=MPI_OFFSET_KIND), INTENT(IN) :: disp
-INTEGER(KIND=ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
-INTEGER(KIND=INT32), DIMENSION (:,:,:), INTENT(IN) :: subarray
+INTEGER(MPI_OFFSET_KIND), INTENT(IN) :: disp
+INTEGER(ik),DIMENSION(3), INTENT(IN) :: dims, subarray_dims, subarray_origin
+INTEGER(INT32), DIMENSION (:,:,:), INTENT(IN) :: subarray
 CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: dtrep
 
 ! file handle fh is provided by mpi itself and mustn't be given by the program/call/user
-INTEGER(KIND=mik)  :: fh, ierr, type_subarray
+INTEGER(mik)  :: fh, ierr, type_subarray
 CHARACTER(LEN=scl) :: datarep = 'NATIVE'
 
 datarep = 'NATIVE'
@@ -551,15 +551,15 @@ END IF
 CALL MPI_FILE_OPEN(MPI_COMM_WORLD, TRIM(filename), &
    MPI_MODE_WRONLY+MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
 
-CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, KIND=mik), INT(subarray_dims, KIND=mik), & 
-   INT(subarray_origin, KIND=mik), MPI_ORDER_FORTRAN, MPI_INTEGER4, type_subarray,ierr)
+CALL MPI_TYPE_CREATE_SUBARRAY (3_mik, INT(dims, mik), INT(subarray_dims, mik), & 
+   INT(subarray_origin, mik), MPI_ORDER_FORTRAN, MPI_INTEGER4, type_subarray,ierr)
 
 CALL MPI_TYPE_COMMIT(type_subarray, ierr)
 
 CALL MPI_FILE_SET_VIEW(fh, disp, MPI_INTEGER4, type_subarray, &
    TRIM(datarep), MPI_INFO_NULL, ierr)
 
-CALL MPI_FILE_WRITE_ALL(fh, subarray, INT(SIZE(subarray), KIND=mik), &
+CALL MPI_FILE_WRITE_ALL(fh, subarray, INT(SIZE(subarray), mik), &
    MPI_INTEGER4, MPI_STATUS_IGNORE, ierr)
 
 CALL MPI_TYPE_FREE(type_subarray, ierr)
@@ -583,8 +583,8 @@ END SUBROUTINE mpi_write_raw_ik4
 !------------------------------------------------------------------------------
 SUBROUTINE ser_write_raw_ik2(fh, filename, array, representation)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
-INTEGER(KIND=INT16), DIMENSION(:,:,:), INTENT(IN) :: array
+INTEGER(ik), INTENT(IN) :: fh
+INTEGER(INT16), DIMENSION(:,:,:), INTENT(IN) :: array
 CHARACTER(len=*), INTENT(IN) :: filename
 CHARACTER(len=*), INTENT(IN), OPTIONAL :: representation
 
@@ -618,8 +618,8 @@ END SUBROUTINE ser_write_raw_ik2
 !------------------------------------------------------------------------------
 SUBROUTINE ser_write_raw_ik4(fh, filename, array, representation)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
-INTEGER(KIND=INT32), DIMENSION(:,:,:), INTENT(IN) :: array
+INTEGER(ik), INTENT(IN) :: fh
+INTEGER(INT32), DIMENSION(:,:,:), INTENT(IN) :: array
 CHARACTER(len=*), INTENT(IN) :: filename
 CHARACTER(len=*), INTENT(IN), OPTIONAL :: representation
 
@@ -653,8 +653,8 @@ END SUBROUTINE ser_write_raw_ik4
 !------------------------------------------------------------------------------
 SUBROUTINE ser_write_raw_ik8(fh, filename, array, representation)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
-INTEGER(KIND=INT64), DIMENSION(:,:,:), INTENT(IN) :: array
+INTEGER(ik), INTENT(IN) :: fh
+INTEGER(INT64), DIMENSION(:,:,:), INTENT(IN) :: array
 CHARACTER(len=*), INTENT(IN) :: filename
 CHARACTER(len=*), INTENT(IN), OPTIONAL :: representation
 
@@ -688,8 +688,8 @@ END SUBROUTINE ser_write_raw_ik8
 !------------------------------------------------------------------------------
 SUBROUTINE ser_write_raw_rk4(fh, filename, array, representation)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
-REAL(KIND=REAL32), DIMENSION(:,:,:), INTENT(IN) :: array
+INTEGER(ik), INTENT(IN) :: fh
+REAL(REAL32), DIMENSION(:,:,:), INTENT(IN) :: array
 CHARACTER(len=*), INTENT(IN) :: filename
 CHARACTER(len=*), INTENT(IN), OPTIONAL :: representation
 
@@ -723,8 +723,8 @@ END SUBROUTINE ser_write_raw_rk4
 !------------------------------------------------------------------------------
 SUBROUTINE ser_write_raw_rk8(fh, filename, array, representation)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
-REAL(KIND=REAL64), DIMENSION(:,:,:), INTENT(IN) :: array
+INTEGER(ik), INTENT(IN) :: fh
+REAL(REAL64), DIMENSION(:,:,:), INTENT(IN) :: array
 CHARACTER(len=*), INTENT(IN) :: filename
 CHARACTER(len=*), INTENT(IN), OPTIONAL :: representation
 
@@ -758,9 +758,9 @@ END SUBROUTINE ser_write_raw_rk8
 !------------------------------------------------------------------------------
 SUBROUTINE ser_read_raw_ik2(fh, filename, array, representation)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
+INTEGER(ik), INTENT(IN) :: fh
 CHARACTER(len=*), INTENT(IN) :: filename
-INTEGER(KIND=INT16), DIMENSION(:,:,:), INTENT(OUT) :: array
+INTEGER(INT16), DIMENSION(:,:,:), INTENT(OUT) :: array
 CHARACTER(len=*), INTENT(IN), OPTIONAL :: representation
 
 CHARACTER(len=scl) :: cnvrt
@@ -793,9 +793,9 @@ END SUBROUTINE ser_read_raw_ik2
 !------------------------------------------------------------------------------
 SUBROUTINE ser_read_raw_ik4(fh, filename, array, representation)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
+INTEGER(ik), INTENT(IN) :: fh
 CHARACTER(len=*), INTENT(IN) :: filename
-INTEGER(KIND=INT32), DIMENSION(:,:,:), INTENT(OUT) :: array
+INTEGER(INT32), DIMENSION(:,:,:), INTENT(OUT) :: array
 CHARACTER(len=*), INTENT(IN), OPTIONAL :: representation
 
 CHARACTER(len=scl) :: cnvrt
@@ -828,9 +828,9 @@ END SUBROUTINE ser_read_raw_ik4
 !------------------------------------------------------------------------------
 SUBROUTINE ser_read_raw_ik8(fh, filename, array, representation)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
+INTEGER(ik), INTENT(IN) :: fh
 CHARACTER(len=*), INTENT(IN) :: filename
-INTEGER(KIND=INT64), DIMENSION(:,:,:), INTENT(OUT) :: array
+INTEGER(INT64), DIMENSION(:,:,:), INTENT(OUT) :: array
 CHARACTER(len=*), INTENT(IN), OPTIONAL :: representation
 
 CHARACTER(len=scl) :: cnvrt
@@ -863,9 +863,9 @@ END SUBROUTINE ser_read_raw_ik8
 !------------------------------------------------------------------------------
 SUBROUTINE ser_read_raw_rk4(fh, filename, array, representation)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
+INTEGER(ik), INTENT(IN) :: fh
 CHARACTER(len=*), INTENT(IN) :: filename
-REAL(KIND=REAL32), DIMENSION(:,:,:), INTENT(OUT) :: array
+REAL(REAL32), DIMENSION(:,:,:), INTENT(OUT) :: array
 CHARACTER(len=*), INTENT(IN), OPTIONAL :: representation
 
 CHARACTER(len=scl) :: cnvrt
@@ -898,9 +898,9 @@ END SUBROUTINE ser_read_raw_rk4
 !------------------------------------------------------------------------------
 SUBROUTINE ser_read_raw_rk8(fh, filename, array, representation)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
+INTEGER(ik), INTENT(IN) :: fh
 CHARACTER(len=*), INTENT(IN) :: filename
-REAL(KIND=REAL64), DIMENSION(:,:,:), INTENT(OUT) :: array
+REAL(REAL64), DIMENSION(:,:,:), INTENT(OUT) :: array
 CHARACTER(len=*), INTENT(IN), OPTIONAL :: representation
 
 CHARACTER(len=scl) :: cnvrt
@@ -966,12 +966,12 @@ SUBROUTINE write_vtk_struct_points_header (fh, filename, type, spcng, origin, di
 ! Subroutine! Otherwise the program will crash. It's not double-checkd here, because this
 ! sequence often is placed at the very end of a program, which may run some time.
 
-INTEGER  (KIND=ik), INTENT(IN) :: fh
+INTEGER  (ik), INTENT(IN) :: fh
 CHARACTER(len=*)  , INTENT(IN) :: filename
 CHARACTER(LEN=*)  , INTENT(IN) :: type
-REAL     (KIND=rk), INTENT(IN), DIMENSION(3) :: spcng
-REAL     (KIND=rk), INTENT(IN), DIMENSION(3) :: origin
-INTEGER  (KIND=ik), INTENT(IN), DIMENSION(3) :: dims
+REAL     (rk), INTENT(IN), DIMENSION(3) :: spcng
+REAL     (rk), INTENT(IN), DIMENSION(3) :: origin
+INTEGER  (ik), INTENT(IN), DIMENSION(3) :: dims
 
 CHARACTER(LEN=scl) :: datatype=''
 LOGICAL :: exist
@@ -1001,7 +1001,7 @@ WRITE(fh,'(A)')          "DATASET STRUCTURED_POINTS"
 WRITE(fh,'(A,3(I5))')    "DIMENSIONS", dims
 WRITE(fh,'(A,3(F11.6))') "SPACING ", spcng
 WRITE(fh,'(A,3(F11.6))') "ORIGIN ", origin
-WRITE(fh,'(A, I0)')      "POINT_DATA ", PRODUCT(INT(dims, KIND=INT64))
+WRITE(fh,'(A, I0)')      "POINT_DATA ", PRODUCT(INT(dims, INT64))
 WRITE(fh,'(A)')          "SCALARS DICOMImage "//TRIM(ADJUSTL(datatype))
 WRITE(fh,'(A)')          "LOOKUP_TABLE default"
 
@@ -1021,7 +1021,7 @@ END SUBROUTINE write_vtk_struct_points_header
 !------------------------------------------------------------------------------
 SUBROUTINE write_vtk_struct_points_footer (fh, filename)
 
-INTEGER(KIND=ik), INTENT(IN) :: fh
+INTEGER(ik), INTENT(IN) :: fh
 CHARACTER(len=*) :: filename
 
 LOGICAL :: opened
@@ -1059,14 +1059,14 @@ END SUBROUTINE write_vtk_struct_points_footer
 SUBROUTINE read_vtk_meta(filename, disp, dims, origin, spcng, type)
 
 CHARACTER(len=*)  , INTENT(IN)  :: filename
-INTEGER  (KIND=ik), INTENT(OUT) :: disp
-INTEGER  (KIND=ik), DIMENSION(3) , INTENT(OUT) :: dims
-REAL     (KIND=rk), DIMENSION(3) , INTENT(OUT) :: origin
-REAL     (KIND=rk), DIMENSION(3) , INTENT(OUT) :: spcng
+INTEGER  (ik), INTENT(OUT) :: disp
+INTEGER  (ik), DIMENSION(3) , INTENT(OUT) :: dims
+REAL     (rk), DIMENSION(3) , INTENT(OUT) :: origin
+REAL     (rk), DIMENSION(3) , INTENT(OUT) :: spcng
 CHARACTER(len=*), INTENT(OUT) :: type
 
 !-- Initialize variables in case they're not used
-INTEGER  (KIND=ik) :: ii=0, ntokens, fh
+INTEGER  (ik) :: ii=0, ntokens, fh
 
 CHARACTER(len=mcl) :: line
 CHARACTER(len=mcl) :: tokens(100)
@@ -1136,12 +1136,12 @@ END SUBROUTINE read_vtk_meta
 SUBROUTINE write_ser_vtk_ik2(filename, type, spcng, dims, origin, array)
 
 CHARACTER(len=*)  , INTENT(IN)  :: filename, type
-INTEGER  (KIND=ik), DIMENSION(3) , INTENT(IN) :: dims
-REAL     (KIND=rk), DIMENSION(3) , INTENT(IN) :: origin
-REAL     (KIND=rk), DIMENSION(3) , INTENT(IN) :: spcng
-INTEGER  (KIND=INT16), DIMENSION(:,:,:), INTENT(IN) :: array
+INTEGER  (ik), DIMENSION(3) , INTENT(IN) :: dims
+REAL     (rk), DIMENSION(3) , INTENT(IN) :: origin
+REAL     (rk), DIMENSION(3) , INTENT(IN) :: spcng
+INTEGER  (INT16), DIMENSION(:,:,:), INTENT(IN) :: array
 
-INTEGER  (KIND=ik) :: fh_temp
+INTEGER  (ik) :: fh_temp
 
 fh_temp = give_new_unit()
 
@@ -1171,12 +1171,12 @@ END SUBROUTINE write_ser_vtk_ik2
 SUBROUTINE write_ser_vtk_ik4(filename, type, spcng, dims, origin, array)
 
 CHARACTER(len=*)  , INTENT(IN)  :: filename, type
-INTEGER  (KIND=ik), DIMENSION(3) , INTENT(IN) :: dims
-REAL     (KIND=rk), DIMENSION(3) , INTENT(IN) :: origin
-REAL     (KIND=rk), DIMENSION(3) , INTENT(IN) :: spcng
-INTEGER  (KIND=INT32), DIMENSION(:,:,:), INTENT(IN) :: array
+INTEGER  (ik), DIMENSION(3) , INTENT(IN) :: dims
+REAL     (rk), DIMENSION(3) , INTENT(IN) :: origin
+REAL     (rk), DIMENSION(3) , INTENT(IN) :: spcng
+INTEGER  (INT32), DIMENSION(:,:,:), INTENT(IN) :: array
 
-INTEGER  (KIND=ik) :: fh_temp
+INTEGER  (ik) :: fh_temp
 
 fh_temp = give_new_unit()
 
