@@ -17,43 +17,43 @@ USE raw_binary
 
 IMPLICIT NONE
 ! Parameter
-INTEGER(KIND=ik), PARAMETER :: debug = 1
+INTEGER(ik), PARAMETER :: debug = 1
 
 ! MPI variables
-INTEGER(KIND=mik) :: ierr, my_rank, size_mpi
+INTEGER(mik) :: ierr, my_rank, size_mpi
 
 ! Std variables
-CHARACTER(LEN=mcl), DIMENSION(:), ALLOCATABLE :: m_rry      
-CHARACTER(LEN=scl) :: type_in, type_out, binary,  restart_cmd_arg, dtrep=''
-CHARACTER(LEN=mcl) :: filename='', cmd_arg_history='', file_type_in = ''
-CHARACTER(LEN=4  ) :: suffix=''
+CHARACTER(mcl), DIMENSION(:), ALLOCATABLE :: m_rry      
+CHARACTER(scl) :: type_in, type_out, binary,  restart_cmd_arg, dtrep=''
+CHARACTER(mcl) :: filename='', cmd_arg_history='', file_type_in = '', stat=""
+CHARACTER(4  ) :: suffix=''
 
-INTEGER(KIND=ik) :: hdr
-INTEGER(KIND=mik), DIMENSION(3) :: sections
-INTEGER(KIND=ik), DIMENSION(3) :: dims, rry_dims, rank_section, sections_ik
-INTEGER(KIND=ik), DIMENSION(3) :: remainder_per_dir, dims_reduced, subarray_origin
-REAL   (KIND=rk), DIMENSION(3) :: spcng, origin
-REAL   (KIND=rk) :: start, end
+INTEGER(ik) :: hdr
+INTEGER(mik) :: sections(3)
+INTEGER(ik), DIMENSION(3) :: dims, rry_dims, rank_section, sections_ik
+INTEGER(ik), DIMENSION(3) :: remainder_per_dir, dims_reduced, subarray_origin
+REAL(rk), DIMENSION(3) :: spcng, origin
+REAL(rk) :: start, end
 
 ! Binary blob variables1
-REAL   (KIND=REAL32), DIMENSION(:,:,:), ALLOCATABLE :: rry_rk4
-REAL   (KIND=REAL64), DIMENSION(:,:,:), ALLOCATABLE :: rry_rk8
-INTEGER(KIND=INT16) , DIMENSION(:,:,:), ALLOCATABLE :: rry_ik2
-INTEGER(KIND=INT32) , DIMENSION(:,:,:), ALLOCATABLE :: rry_ik4
+REAL(REAL32), DIMENSION(:,:,:), ALLOCATABLE :: rry_rk4
+REAL(REAL64), DIMENSION(:,:,:), ALLOCATABLE :: rry_rk8
+INTEGER(INT16) , DIMENSION(:,:,:), ALLOCATABLE :: rry_ik2
+INTEGER(INT32) , DIMENSION(:,:,:), ALLOCATABLE :: rry_ik4
 
-LOGICAL :: stp = .FALSE.
+LOGICAL :: stp = .FALSE., abrt=.FALSE.
 
 !------------------------------------------------------------------------------
 ! Invoke MPI 
 !------------------------------------------------------------------------------
 CALL mpi_init(ierr)
-CALL print_err_stop(std_out, "MPI_INIT didn't succeed", INT(ierr, KIND=ik))
+CALL print_err_stop(std_out, "MPI_INIT didn't succeed", INT(ierr, ik))
 
 CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
-CALL print_err_stop(std_out, "MPI_COMM_RANK couldn't be retrieved", INT(ierr, KIND=ik))
+CALL print_err_stop(std_out, "MPI_COMM_RANK couldn't be retrieved", INT(ierr, ik))
 
 CALL MPI_COMM_SIZE(MPI_COMM_WORLD, size_mpi, ierr)
-CALL print_err_stop(std_out, "MPI_COMM_SIZE couldn't be retrieved", INT(ierr, KIND=ik))
+CALL print_err_stop(std_out, "MPI_COMM_SIZE couldn't be retrieved", INT(ierr, ik))
 
 IF (size_mpi < 2) CALL print_err_stop(std_out, "We need at least 2 MPI processes to execute this program.", 1)
 
@@ -99,7 +99,7 @@ IF (my_rank==0) THEN
     !------------------------------------------------------------------------------
     ! Check whether to convert from vtk to meta or the opposite way.
     !------------------------------------------------------------------------------
-    IF (filename(LEN_TRIM(filename, KIND=ik)-2:LEN_TRIM(filename, KIND=ik)) == "vtk") THEN
+    IF (filename(LEN_TRIM(filename, ik)-2:LEN_TRIM(filename, ik)) == "vtk") THEN
         CALL meta_create_new(TRIM(ADJUSTL(filename)))
  
         !------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ IF (my_rank==0) THEN
         FLUSH(fhmeo)
 
         file_type_in = "vtk"
-    ELSE IF (filename(LEN_TRIM(filename, KIND=ik)-3:LEN_TRIM(filename, KIND=ik)) == "meta") THEN
+    ELSE IF (filename(LEN_TRIM(filename, ik)-3:LEN_TRIM(filename, ik)) == "meta") THEN
         
         !------------------------------------------------------------------------------
         ! Special treatment of meta format, not a regular i/o procedure.
@@ -172,10 +172,10 @@ IF (my_rank==0) THEN
 
         CALL meta_invoke(m_rry)
 
-        CALL meta_read('TYPE_RAW'  , m_rry, type_out)
-        CALL meta_read('SPACING'   , m_rry, spcng)
-        CALL meta_read('ORIGIN'    , m_rry, origin)
-        CALL meta_read('DIMENSIONS', m_rry, dims)
+        CALL meta_read('TYPE_RAW'  , m_rry, type_out, stat); IF(stat/="") abrt=.TRUE.
+        CALL meta_read('SPACING'   , m_rry, spcng, stat); IF(stat/="") abrt=.TRUE.
+        CALL meta_read('ORIGIN'    , m_rry, origin, stat); IF(stat/="") abrt=.TRUE.
+        CALL meta_read('DIMENSIONS', m_rry, dims, stat); IF(stat/="") abrt=.TRUE.
 
         CALL write_vtk_struct_points_header &
             (fh_vtk, TRIM(out%p_n_bsnm)//vtk_suf, type_out, spcng, origin, dims)
@@ -196,11 +196,11 @@ END IF ! my_rank==0
 !------------------------------------------------------------------------------
 ! Send required variables
 !------------------------------------------------------------------------------
-CALL MPI_BCAST (type_in     , INT(scl, KIND=mik)     , MPI_CHAR, 0_mik, MPI_COMM_WORLD, ierr)
-CALL MPI_BCAST (type_out    , INT(scl, KIND=mik)     , MPI_CHAR, 0_mik, MPI_COMM_WORLD, ierr)
-CALL MPI_BCAST (in%p_n_bsnm , INT(meta_mcl, KIND=mik), MPI_CHAR, 0_mik, MPI_COMM_WORLD, ierr)
-CALL MPI_BCAST (out%p_n_bsnm, INT(meta_mcl, KIND=mik), MPI_CHAR, 0_mik, MPI_COMM_WORLD, ierr)
-CALL MPI_BCAST (file_type_in, INT(meta_mcl, KIND=mik), MPI_CHAR, 0_mik, MPI_COMM_WORLD, ierr)
+CALL MPI_BCAST (type_in     , INT(scl, mik)     , MPI_CHAR, 0_mik, MPI_COMM_WORLD, ierr)
+CALL MPI_BCAST (type_out    , INT(scl, mik)     , MPI_CHAR, 0_mik, MPI_COMM_WORLD, ierr)
+CALL MPI_BCAST (in%p_n_bsnm , INT(meta_mcl, mik), MPI_CHAR, 0_mik, MPI_COMM_WORLD, ierr)
+CALL MPI_BCAST (out%p_n_bsnm, INT(meta_mcl, mik), MPI_CHAR, 0_mik, MPI_COMM_WORLD, ierr)
+CALL MPI_BCAST (file_type_in, INT(meta_mcl, mik), MPI_CHAR, 0_mik, MPI_COMM_WORLD, ierr)
 CALL MPI_BCAST (hdr , 1_mik, MPI_INTEGER8, 0_mik, MPI_COMM_WORLD, ierr)
 CALL MPI_BCAST (dims, 3_mik, MPI_INTEGER8, 0_mik, MPI_COMM_WORLD, ierr)
 
@@ -216,9 +216,9 @@ CALL MPI_BCAST (dims, 3_mik, MPI_INTEGER8, 0_mik, MPI_COMM_WORLD, ierr)
 !------------------------------------------------------------------------------
 sections=0
 CALL MPI_DIMS_CREATE (size_mpi, 3_mik, sections, ierr)
-CALL get_rank_section(INT(my_rank, KIND=ik), INT(sections, KIND=ik), rank_section)
+CALL get_rank_section(INT(my_rank, ik), INT(sections, ik), rank_section)
 
-sections_ik = INT(sections, KIND=ik)
+sections_ik = INT(sections, ik)
 remainder_per_dir = MODULO(dims, sections_ik)
 
 dims_reduced   = dims - remainder_per_dir
@@ -248,13 +248,13 @@ END IF
 SELECT CASE(type_in)
     CASE('rk4') 
         ! MPI_OFFSET_KIND needs ik=8 in this case.
-        CALL mpi_read_raw(TRIM(in%p_n_bsnm)//suffix, INT(hdr, KIND=8), dims, rry_dims, subarray_origin, rry_rk4, TRIM(dtrep))
+        CALL mpi_read_raw(TRIM(in%p_n_bsnm)//suffix, INT(hdr, 8), dims, rry_dims, subarray_origin, rry_rk4, TRIM(dtrep))
     CASE('rk8') 
-        CALL mpi_read_raw(TRIM(in%p_n_bsnm)//suffix, INT(hdr, KIND=8), dims, rry_dims, subarray_origin, rry_rk8, TRIM(dtrep))
+        CALL mpi_read_raw(TRIM(in%p_n_bsnm)//suffix, INT(hdr, 8), dims, rry_dims, subarray_origin, rry_rk8, TRIM(dtrep))
     CASE('ik4') 
-        CALL mpi_read_raw(TRIM(in%p_n_bsnm)//suffix, INT(hdr, KIND=8), dims, rry_dims, subarray_origin, rry_ik4, TRIM(dtrep))
+        CALL mpi_read_raw(TRIM(in%p_n_bsnm)//suffix, INT(hdr, 8), dims, rry_dims, subarray_origin, rry_ik4, TRIM(dtrep))
     CASE('ik2', 'uik2') 
-        CALL mpi_read_raw(TRIM(in%p_n_bsnm)//suffix, INT(hdr, KIND=8), dims, rry_dims, subarray_origin, rry_ik2, TRIM(dtrep))
+        CALL mpi_read_raw(TRIM(in%p_n_bsnm)//suffix, INT(hdr, 8), dims, rry_dims, subarray_origin, rry_ik2, TRIM(dtrep))
 
         IF((type_in == 'uik2') .AND. (type_out == 'ik4')) THEN
             CALL uik2_to_ik4(rry_ik2, rry_ik4)
@@ -291,17 +291,17 @@ END IF
 
 SELECT CASE(type_out)
     CASE('ik2') 
-        CALL mpi_write_raw(TRIM(out%p_n_bsnm)//suffix, INT(hdr, KIND=8), dims, &
+        CALL mpi_write_raw(TRIM(out%p_n_bsnm)//suffix, INT(hdr, 8), dims, &
             rry_dims, subarray_origin, rry_ik2, TRIM(dtrep))
     CASE('ik4') 
         SELECT CASE(type_in)
             CASE('rk4') 
-                rry_ik4 = INT(rry_rk4, KIND=INT32)
+                rry_ik4 = INT(rry_rk4, INT32)
             CASE('rk8') 
-                rry_ik4 = INT(rry_rk8, KIND=INT32)
+                rry_ik4 = INT(rry_rk8, INT32)
         END SELECT
 
-        CALL mpi_write_raw(TRIM(out%p_n_bsnm)//suffix, INT(hdr, KIND=8), dims, &
+        CALL mpi_write_raw(TRIM(out%p_n_bsnm)//suffix, INT(hdr, 8), dims, &
             rry_dims, subarray_origin, rry_ik4, TRIM(dtrep))
 END SELECT
 
@@ -333,6 +333,6 @@ IF(my_rank == 0) THEN
 END IF ! (my_rank == 0)
 
 Call MPI_FINALIZE(ierr)
-CALL print_err_stop(std_out, "MPI_FINALIZE didn't succeed", INT(ierr, KIND=ik))
+CALL print_err_stop(std_out, "MPI_FINALIZE didn't succeed", INT(ierr, ik))
 
 END PROGRAM xtometa
